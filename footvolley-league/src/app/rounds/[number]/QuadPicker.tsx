@@ -82,7 +82,7 @@ export function QuadPicker({
                     type="button"
                     onClick={() => setCaptain(p.id)}
                     className={`mt-1 rounded-full px-2 py-0.5 text-xs ${
-                      captain === p.id ? "bg-sand font-bold text-stone-900" : "bg-card text-muted"
+                      captain === p.id ? "bg-brand font-bold text-brand-dark" : "bg-card text-muted"
                     }`}
                   >
                     {captain === p.id ? "קפטן ©" : "הפוך לקפטן"}
@@ -117,7 +117,7 @@ export function QuadPicker({
                     onClick={() => toggle(p.id)}
                     disabled={!on && selected.length >= 4}
                     className={`rounded-full border px-3 py-1 text-sm transition disabled:opacity-40 ${
-                      on ? "border-accent bg-accent text-white" : "border-border bg-card hover:border-accent"
+                      on ? "border-accent bg-accent text-accent-contrast" : "border-border bg-card hover:border-accent"
                     }`}
                   >
                     {p.name}

@@ -61,6 +61,20 @@ export default async function AdminSeasonPage() {
               <input className="input" type="number" step="0.5" name="captain_multiplier" defaultValue={s.captain_multiplier} min={0} />
             </label>
           </div>
+          <h3 className="pt-2 font-bold">פרסי XIMOBILITY</h3>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {([1, 2, 3] as const).map((n) => (
+              <label key={n}>
+                <span className="label">{["🥇 מקום ראשון", "🥈 מקום שני", "🥉 מקום שלישי"][n - 1]}</span>
+                <input
+                  className="input"
+                  name={`prize_${n}`}
+                  defaultValue={s[`prize_${n}`] ?? ""}
+                  placeholder="למשל: קורקינט חשמלי"
+                />
+              </label>
+            ))}
+          </div>
           <p className="text-xs text-muted">
             &quot;תוצאה מדויקת&quot; הוא הניקוד הכולל למשחק כשהתוצאה מדויקת (לא מתווסף לניקוד המנצחת). שינוי ניקוד
             מחשב מחדש את כל הדירוג.

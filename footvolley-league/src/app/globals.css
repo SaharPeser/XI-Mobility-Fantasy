@@ -1,26 +1,31 @@
 @import "tailwindcss";
 
+/* צבעי המותג של XIMOBILITY: טורקיז ‎#48C8E8‎, כחול פלדה ‎#177FAB‎, כהה ‎#1C1A1B‎ */
 :root {
-  --background: #f7f4ee;
-  --foreground: #1c1917;
+  --background: #f3f5f6;
+  --foreground: #16181a;
   --card: #ffffff;
-  --muted: #78716c;
-  --border: #e7e1d6;
-  --accent: #0e7490;
-  --accent-soft: #e0f2f5;
-  --sand: #f2c14e;
+  --muted: #687077;
+  --border: #e1e6e9;
+  --accent: #177fab;
+  --accent-contrast: #ffffff;
+  --accent-soft: #e4f5fb;
+  --brand: #48c8e8;
+  --brand-dark: #1c1a1b;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #14120f;
-    --foreground: #f5f5f4;
-    --card: #1f1c18;
-    --muted: #a8a29e;
-    --border: #35302a;
-    --accent: #22b8d6;
-    --accent-soft: #0f2d35;
-    --sand: #e0ad35;
+    --background: #111213;
+    --foreground: #f2f4f5;
+    --card: #1b1d1f;
+    --muted: #9aa3a9;
+    --border: #2c3034;
+    --accent: #48c8e8;
+    --accent-contrast: #0b1a20;
+    --accent-soft: #11303a;
+    --brand: #48c8e8;
+    --brand-dark: #0c0b0b;
   }
 }
 
@@ -31,9 +36,11 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-accent: var(--accent);
+  --color-accent-contrast: var(--accent-contrast);
   --color-accent-soft: var(--accent-soft);
-  --color-sand: var(--sand);
-  --font-sans: var(--font-rubik);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --font-sans: var(--font-heebo);
 }
 
 body {
@@ -46,7 +53,11 @@ body {
 }
 
 .btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 font-bold text-accent-contrast transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.btn-brand {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2 font-bold text-brand-dark transition hover:opacity-90;
 }
 
 .btn-secondary {
@@ -70,5 +81,12 @@ body {
 }
 
 h1.page-title {
-  @apply mb-4 text-2xl font-bold;
+  @apply mb-4 text-2xl font-extrabold;
+}
+
+/* דוגמת פסים אלכסוניים בהשראת ה-X של הלוגו */
+.brand-stripes {
+  background-image:
+    linear-gradient(115deg, transparent 0 58%, rgb(72 200 232 / 0.16) 58% 64%, transparent 64% 70%, rgb(72 200 232 / 0.1) 70% 73%, transparent 73%),
+    linear-gradient(65deg, transparent 0 78%, rgb(23 127 171 / 0.35) 78% 86%, transparent 86%);
 }

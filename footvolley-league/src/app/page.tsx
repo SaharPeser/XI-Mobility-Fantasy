@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NoSeason } from "@/components/NoSeason";
+import { SponsorLogo, SponsorPrizes } from "@/components/Sponsor";
 import { getActiveSeason, getSessionUser } from "@/lib/data";
 import { formatDateTime, isPast } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
@@ -37,17 +38,24 @@ export default async function Home() {
 
   return (
     <div className="space-y-5">
-      <section className="rounded-3xl bg-gradient-to-l from-accent to-cyan-900 p-6 text-white shadow">
-        <p className="text-sm opacity-80">{season.name}</p>
-        <h1 className="mt-1 text-3xl font-bold">משחק הניחושים של ליגת הפוצ&apos;יוולי</h1>
+      <section className="brand-stripes overflow-hidden rounded-3xl bg-brand-dark p-6 text-white shadow-lg">
+        <div className="flex items-center gap-2 text-xs font-medium text-white/70">
+          <span>בחסות</span>
+          <SponsorLogo className="h-4" />
+        </div>
+        <h1 className="mt-3 text-3xl leading-tight font-extrabold">
+          משחק הניחושים של <span className="text-brand">ליגת הפוצ&apos;יוולי</span>
+        </h1>
+        <p className="mt-1 text-sm text-white/70">{season.name}</p>
         {user ? (
           me && (
-            <p className="mt-3 text-lg">
-              {user.displayName}, את/ה במקום <b>{me.rank}</b> עם <b>{Number(me.total)}</b> נקודות
+            <p className="mt-4 text-lg">
+              {user.displayName}, את/ה במקום <b className="text-brand">{me.rank}</b> עם{" "}
+              <b className="text-brand">{Number(me.total)}</b> נקודות
             </p>
           )
         ) : (
-          <Link href="/login" className="mt-4 inline-block rounded-xl bg-white px-5 py-2 font-bold text-cyan-900">
+          <Link href="/login" className="btn-brand mt-5 px-6 py-2.5">
             הצטרפו למשחק
           </Link>
         )}
@@ -67,7 +75,7 @@ export default async function Home() {
       )}
 
       {user && tableOpen && (
-        <Link href="/predict-table" className="card block border-sand hover:border-accent">
+        <Link href="/predict-table" className="card block border-brand hover:border-accent">
           <div className="font-bold">ניחוש הטבלה {tableCount ? "✓ נשמר" : "– עוד לא מילאתם!"}</div>
           <div className="text-sm text-muted">
             {season.table_deadline ? `אפשר לשנות עד ${formatDateTime(season.table_deadline)}` : "סדרו את הטבלה הצפויה"}
@@ -96,8 +104,9 @@ export default async function Home() {
         ) : (
           <p className="text-muted">עוד אין משתתפים.</p>
         )}
-        <p className="mt-3 text-xs text-muted">פרסים לשלושת המקומות הראשונים בדירוג הכללי!</p>
       </section>
+
+      <SponsorPrizes season={season} />
 
       <section className="card text-sm">
         <h2 className="mb-2 text-lg font-bold">איך צוברים נקודות?</h2>

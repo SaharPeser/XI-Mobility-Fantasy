@@ -58,9 +58,12 @@ export async function updateSeason(fd: FormData) {
       pts_table_position: num(fd, "pts_table_position") ?? 0,
       quad_multiplier: num(fd, "quad_multiplier") ?? 1,
       captain_multiplier: num(fd, "captain_multiplier") ?? 1,
+      prize_1: str(fd, "prize_1") || null,
+      prize_2: str(fd, "prize_2") || null,
+      prize_3: str(fd, "prize_3") || null,
     })
     .eq("id", id);
-  done(fd, error);
+  done(fd, error?.message.includes("prize_") ? "יש להריץ ב-Supabase את קובץ ה-SQL של הפרסים" : error);
 }
 
 export async function activateSeason(fd: FormData) {

@@ -8,6 +8,10 @@ export type Season = {
   pts_table_position: number;
   quad_multiplier: number;
   captain_multiplier: number;
+  // פרסי החסות – ריקים עד שהמנהל מזין אותם
+  prize_1?: string | null;
+  prize_2?: string | null;
+  prize_3?: string | null;
 };
 
 export type Team = {

@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
     <div>
       <div className="mb-4 flex items-center gap-2">
-        <span className="rounded-lg bg-sand px-2 py-1 text-sm font-bold text-stone-900">ניהול</span>
+        <span className="rounded-lg bg-brand px-2 py-1 text-sm font-bold text-brand-dark">ניהול</span>
         <nav className="flex gap-1 overflow-x-auto text-sm">
           {LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="whitespace-nowrap rounded-lg px-3 py-1.5 hover:bg-accent-soft">

@@ -1,5 +1,6 @@
 import { LeaderboardTable } from "@/components/LeaderboardTable";
 import { NoSeason } from "@/components/NoSeason";
+import { SponsorPrizes } from "@/components/Sponsor";
 import { getActiveSeason, getSessionUser } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import type { LeaderboardRow } from "@/lib/types";
@@ -14,8 +15,8 @@ export default async function LeaderboardPage() {
   return (
     <div>
       <h1 className="page-title">הדירוג הכללי – {season.name}</h1>
-      <div className="card mb-4 border-sand text-sm">
-        🏆 פרסים לשלושת המקומות הראשונים בדירוג הכללי בסוף העונה!
+      <div className="mb-4">
+        <SponsorPrizes season={season} />
       </div>
       <LeaderboardTable rows={(data ?? []) as LeaderboardRow[]} meId={user?.id} />
     </div>

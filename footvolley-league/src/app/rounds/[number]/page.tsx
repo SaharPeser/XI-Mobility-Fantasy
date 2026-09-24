@@ -193,7 +193,7 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
                     <div key={q.player_id} className="flex items-center justify-between">
                       <span>
                         {q.is_captain && (
-                          <span className="ml-1 rounded-full bg-sand px-1.5 text-xs font-bold text-stone-900">C</span>
+                          <span className="ml-1 rounded-full bg-brand px-1.5 text-xs font-bold text-brand-dark">C</span>
                         )}
                         {p?.name ?? "שחקן"} <span className="text-xs text-muted">{p && teams[p.team_id]?.name}</span>
                       </span>
