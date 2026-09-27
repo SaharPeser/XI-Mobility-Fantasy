@@ -71,6 +71,7 @@ where id = (select id from auth.users where email = 'YOUR@EMAIL.com');
 | מסמך | תוכן |
 |---|---|
 | [docs/ADMIN-GUIDE.md](docs/ADMIN-GUIDE.md) | מדריך למנהל הליגה (עברית) |
+| [docs/SCORING-MODEL.md](docs/SCORING-MODEL.md) | מודל הניקוד המלא למשתתפים (עברית) |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | מבנה הקוד וזרימת הנתונים |
 | [docs/DATABASE.md](docs/DATABASE.md) | טבלאות, הרשאות ופונקציות |
 | [docs/SCORING.md](docs/SCORING.md) | חוקי הניקוד |

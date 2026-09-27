@@ -145,5 +145,39 @@ ok((await as(U1, `select * from get_leaderboard($1, $2)`, [season, league.id])).
 await as(U3, `delete from league_members where league_id = $1 and user_id = $2`, [league.id, U3]);
 ok((await as(U2, `select * from league_members where league_id = $1`, [league.id])).rows.length === 1, "member can leave");
 
+// ---------- ניקוד אישי לשחקנים (20260927000000_player_scoring) ----------
+// מחליפים את הניקוד הידני בנתוני משחק. match: קבוצה 1 ניצחה 21:15. match2: קבוצה 3 ניצחה 25:23 (הארכה).
+await as(U1, `delete from player_round_points where round_id = $1`, [round]);
+const stat = (m, p, cols = {}) => {
+  const keys = ["match_id", "player_id", ...Object.keys(cols)];
+  const vals = [m, p, ...Object.values(cols)];
+  return as(U1, `insert into match_player_stats (${keys.join(",")}) values (${vals.map((_, i) => `$${i + 1}`).join(",")})`, vals);
+};
+await stat(match, q[0], { blocks: 2, great_defense: 1, scored_tier: 1, is_mvp: true }); // 1+3+2+2+4+2 = 14
+await stat(match, q[1], { unforced_errors: 3, yellow_card: true }); // 1-3-2 = -4
+await stat(match2, q[2], { scored_tier: 2, red_card: true }); // 1+3+1(הארכה)+4-5 = 4
+await stat(match2, q[3]); // 1+1(הארכה) = 2
+await as(U1, `update rounds set mvp_player_id = $1 where id = $2`, [q[0], round]); // +5 => 19
+
+ok(!!(await fails(U1, `insert into match_player_stats (match_id, player_id) values ($1, $2)`, [match, q[2]])), "player from another team rejected");
+ok(!!(await fails(U1, `insert into match_player_stats (match_id, player_id, is_mvp) values ($1, $2, true)`, [match, pid("שחקן 1ב")])), "only one MVP per match");
+ok(!!(await fails(U2, `insert into match_player_stats (match_id, player_id) values ($1, $2)`, [match, pid("שחקן 2ב")])), "non-admin cannot enter stats");
+
+const prs = Object.fromEntries(
+  (await as(null, `select player_id, points from player_round_scores where round_id = $1`, [round])).rows.map((r) => [r.player_id, +r.points]),
+);
+ok(prs[q[0]] === 19 && prs[q[1]] === -4 && prs[q[2]] === 4 && prs[q[3]] === 2, `player round scores (got ${JSON.stringify(Object.values(prs))})`);
+
+const quadOf = async () => +(await as(null, `select * from get_leaderboard($1)`, [season])).rows.find((r) => r.user_id === U2).quad_points;
+// קפטן q[1]: 19*2 + (-4)*4 + 4*2 + 2*2 = 34
+ok((await quadOf()) === 34, "quad uses personal scores, captain multiplies negative");
+await as(U1, `update seasons set quad_multiply_negative = false where id = $1`, [season]);
+ok((await quadOf()) === 46, "negative points not multiplied when disabled (38-4+8+4)");
+await as(U1, `update seasons set quad_multiply_negative = true where id = $1`, [season]);
+await as(U1, `update matches set home_score = 21, away_score = 14 where id = $1`, [match]); // הפרש 7 = ניצחון מוחץ +2
+ok((await quadOf()) === 38, "crushing win adds points (21*2-16+8+4)");
+await as(U1, `insert into player_round_points (player_id, round_id, points) values ($1, $2, 1)`, [q[3], round]);
+ok((await quadOf()) === 40, "manual adjustment is added to the round score");
+
 console.log(failures ? `\n${failures} FAILED` : "\nALL PASSED");
 process.exit(failures ? 1 : 0);

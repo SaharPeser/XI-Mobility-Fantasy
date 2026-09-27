@@ -14,6 +14,7 @@ A predictions game for the Israeli footvolley league, sponsored by XIMOBILITY. U
 | Code layout, auth, data flow | `footvolley-league/docs/ARCHITECTURE.md` |
 | Tables, RLS, SQL functions, migrations | `footvolley-league/docs/DATABASE.md` |
 | Scoring rules and where they are computed | `footvolley-league/docs/SCORING.md` |
+| Scoring model for users (Hebrew, keep in sync with defaults) | `footvolley-league/docs/SCORING-MODEL.md` |
 | Brand, colors, UI components | `footvolley-league/docs/DESIGN.md` |
 | Supabase, Vercel, env vars, domain | `footvolley-league/docs/DEPLOYMENT.md` |
 | Planned features | `footvolley-league/docs/ROADMAP.md` |

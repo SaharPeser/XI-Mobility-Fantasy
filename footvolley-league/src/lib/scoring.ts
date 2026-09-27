@@ -89,3 +89,64 @@ export const ZONES: { range: string; zone: Zone }[] = [
   { range: "9–10", zone: zoneForPosition(9)! },
   { range: "11–12", zone: zoneForPosition(11)! },
 ];
+
+// ---------------------------------------------------------------------
+// ניקוד אישי לשחקנים – רשימה אחת לטופס הניהול ולעמוד החוקים
+// ---------------------------------------------------------------------
+
+export type PlayerRuleKey =
+  | "ppts_played"
+  | "ppts_win"
+  | "ppts_crushing_win"
+  | "ppts_overtime"
+  | "ppts_block"
+  | "ppts_great_defense"
+  | "ppts_scored_8"
+  | "ppts_scored_14"
+  | "ppts_match_mvp"
+  | "ppts_round_mvp"
+  | "ppts_yellow"
+  | "ppts_red"
+  | "ppts_unforced_error";
+
+export type PlayerRule = {
+  key: PlayerRuleKey;
+  label: string;
+  /** הסבר קצר איך זה נקבע */
+  how: string;
+  penalty?: boolean;
+  /** ערך ברירת מחדל – זהה ל-migration */
+  fallback: number;
+};
+
+export const PLAYER_RULES: PlayerRule[] = [
+  { key: "ppts_played", label: "השתתפות במשחק", how: "כל שחקן שעלה לשחק", fallback: 1 },
+  { key: "ppts_win", label: "ניצחון", how: "אוטומטי לפי התוצאה", fallback: 3 },
+  { key: "ppts_crushing_win", label: "ניצחון מוחץ", how: "בנוסף לניצחון, לפי הפרש הנקודות", fallback: 2 },
+  { key: "ppts_overtime", label: "המשחק הגיע להארכה", how: "20:20 ומעלה – לכל מי ששיחק", fallback: 1 },
+  { key: "ppts_block", label: "חסימה", how: "לכל חסימה", fallback: 1 },
+  { key: "ppts_great_defense", label: "פעולת הגנה מדהימה", how: "לכל פעולה", fallback: 2 },
+  { key: "ppts_scored_8", label: "8 נקודות ומעלה במערכה", how: "נקודות אישיות", fallback: 2 },
+  { key: "ppts_scored_14", label: "14 נקודות ומעלה במערכה", how: "במקום הבונוס של 8+", fallback: 4 },
+  { key: "ppts_match_mvp", label: "מצטיין המשחק", how: "שחקן אחד בכל משחק", fallback: 4 },
+  { key: "ppts_round_mvp", label: "מצטיין המחזור", how: "שחקן אחד בכל מחזור, בנוסף", fallback: 5 },
+  { key: "ppts_yellow", label: "כרטיס צהוב", how: "מצטבר עם אדום", penalty: true, fallback: 2 },
+  { key: "ppts_red", label: "כרטיס אדום", how: "מצטבר עם צהוב", penalty: true, fallback: 5 },
+  { key: "ppts_unforced_error", label: "טעות בלתי מחויבת", how: "לכל טעות", penalty: true, fallback: 1 },
+];
+
+export function playerRuleValue(season: Partial<Record<PlayerRuleKey, number>>, rule: PlayerRule): number {
+  return Number(season[rule.key] ?? rule.fallback);
+}
+
+export const DEFAULT_CRUSHING_MARGIN = 7;
+
+/** המכפיל של שחקן ברביעייה – זהה ל-get_leaderboard */
+export function quadMultiplier(
+  season: Pick<Season, "quad_multiplier" | "captain_multiplier" | "quad_multiply_negative">,
+  points: number,
+  isCaptain: boolean,
+): number {
+  if (points < 0 && season.quad_multiply_negative === false) return 1;
+  return Number(isCaptain ? season.captain_multiplier : season.quad_multiplier);
+}

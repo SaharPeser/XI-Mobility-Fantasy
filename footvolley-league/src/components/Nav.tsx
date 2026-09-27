@@ -8,7 +8,9 @@ const LINKS = [
   { href: "/predict-table", label: "ניחוש טבלה" },
   { href: "/standings", label: "טבלת הליגה" },
   { href: "/leaderboard", label: "דירוג" },
+  { href: "/players", label: "שחקנים" },
   { href: "/leagues", label: "ליגות חברים" },
+  { href: "/rules", label: "חוקי הניקוד" },
 ];
 
 export async function Nav() {

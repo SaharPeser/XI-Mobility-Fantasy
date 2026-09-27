@@ -6,17 +6,19 @@ All schema lives in `supabase/migrations/`, applied in file-name order. **Never 
 |---|---|
 | `20260924000000_init.sql` | Full schema, RLS, RPC functions |
 | `20260925000000_sponsor_prizes.sql` | `seasons.prize_1..3` (XIMOBILITY prize text) |
+| `20260927000000_player_scoring.sql` | Personal player scoring: `seasons.ppts_*`, `crushing_margin`, `quad_multiply_negative`, `rounds.mvp_player_id`, `match_player_stats`, views `player_match_points` and `player_round_scores`. `get_leaderboard` now reads quad points from the view |
 
 ## Tables
 | Table | Purpose | Key columns |
 |---|---|---|
 | `profiles` | One row per auth user | `display_name`, `is_admin` |
-| `seasons` | A season and its scoring settings | `is_active` (max one), `table_deadline`, `pts_winner`, `pts_exact`, `pts_table_position`, `quad_multiplier`, `captain_multiplier`, `prize_1..3` |
+| `seasons` | A season and its scoring settings | `is_active` (max one), `table_deadline`, `pts_winner`, `pts_exact`, `pts_table_position`, `quad_multiplier`, `captain_multiplier`, `prize_1..3`, `ppts_*` (personal scoring, penalties stored positive), `crushing_margin`, `quad_multiply_negative` |
 | `teams` | Teams in a season | `name` (unique per season), `logo_url`, `final_position` (set by admin at season end) |
 | `players` | Players in a team | `is_active` (inactive players cannot be picked) |
-| `rounds` | A round with its lock time | `number` (unique per season), `stage` (`regular` / `playoff` / `final_four` / `relegation`), `deadline` |
+| `rounds` | A round with its lock time | `number` (unique per season), `stage` (`regular` / `playoff` / `final_four` / `relegation`), `deadline`, `mvp_player_id` (round MVP) |
 | `matches` | A match in a round | `home_team_id`, `away_team_id`, `starts_at`, `sort_order`, `home_score`, `away_score` (null until played) |
-| `player_round_points` | Fantasy points per player per round, entered by admin | PK (`player_id`, `round_id`), `points` numeric |
+| `match_player_stats` | A player's stats in one match (row = played) | PK (`match_id`, `player_id`), `blocks`, `great_defense`, `unforced_errors`, `scored_tier` (0/1/2), `is_mvp` (max one per match), `yellow_card`, `red_card`. A trigger checks the player belongs to one of the match teams |
+| `player_round_points` | **Manual adjustment** to a player's round score (optional, can be negative) | PK (`player_id`, `round_id`), `points` numeric |
 | `match_predictions` | A user's score prediction | PK (`user_id`, `match_id`), `home_score`, `away_score` |
 | `table_predictions` | A user's predicted final table | PK (`user_id`, `season_id`, `team_id`), unique `position` |
 | `quad_picks` | A user's 4 players for a round | PK (`user_id`, `round_id`, `player_id`), `is_captain` (max one per round) |
@@ -24,6 +26,12 @@ All schema lives in `supabase/migrations/`, applied in file-name order. **Never 
 | `league_members` | League membership | PK (`league_id`, `user_id`) |
 
 Cascades: deleting a season, team, round or match deletes everything under it, **including predictions**.
+
+## Views
+| View | Purpose |
+|---|---|
+| `player_match_points` | Points per (match, player) from `match_player_stats` + the result + season settings. `security_invoker` |
+| `player_round_scores` | Points per (player, round, season) = Σ match points + round MVP bonus + manual adjustment. Used by `get_leaderboard`, the round page and `/players` |
 
 ## Functions
 | Function | Type | Purpose |
@@ -43,7 +51,7 @@ Cascades: deleting a season, team, round or match deletes everything under it, *
 | Table | Read | Write |
 |---|---|---|
 | `profiles` | everyone | own `display_name` only (column grant) |
-| `seasons`, `teams`, `players`, `rounds`, `matches`, `player_round_points` | everyone (including anonymous) | admin only |
+| `seasons`, `teams`, `players`, `rounds`, `matches`, `player_round_points`, `match_player_stats` | everyone (including anonymous) | admin only |
 | `match_predictions` | own; others' after the round deadline | own, only while the round is open |
 | `table_predictions` | own; others' after `table_deadline` | only through `save_table_prediction` |
 | `quad_picks` | own; others' after the round deadline | only through `save_quad` |

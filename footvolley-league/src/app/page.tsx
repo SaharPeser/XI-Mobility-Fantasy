@@ -121,9 +121,13 @@ export default async function Home() {
             כל קבוצה במיקום הנכון בטבלת סוף העונה הסדירה: <b>{season.pts_table_position}</b> נק&apos;
           </li>
           <li>
-            רביעיית המחזור: ניקוד השחקן × <b>{season.quad_multiplier}</b>, והקפטן × <b>{season.captain_multiplier}</b>
+            רביעיית המחזור: הניקוד האישי של השחקן × <b>{season.quad_multiplier}</b>, והקפטן ×{" "}
+            <b>{season.captain_multiplier}</b>
           </li>
         </ul>
+        <Link href="/rules" className="mt-3 inline-block font-medium text-accent">
+          לכל חוקי הניקוד ←
+        </Link>
       </section>
     </div>
   );

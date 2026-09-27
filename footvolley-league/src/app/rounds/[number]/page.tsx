@@ -4,7 +4,7 @@ import { NoSeason } from "@/components/NoSeason";
 import { TeamBadge } from "@/components/TeamBadge";
 import { getActiveSeason, getSessionUser } from "@/lib/data";
 import { formatDateTime, isPast } from "@/lib/format";
-import { predictionPoints } from "@/lib/scoring";
+import { predictionPoints, quadMultiplier } from "@/lib/scoring";
 import { createClient } from "@/lib/supabase/server";
 import type { Match, Player, Round, Team } from "@/lib/types";
 import { PredictionsForm } from "./PredictionsForm";
@@ -35,7 +35,7 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
         .eq("teams.season_id", season.id)
         .eq("is_active", true)
         .order("name"),
-      supabase.from("player_round_points").select("player_id, points").eq("round_id", round.id),
+      supabase.from("player_round_scores").select("player_id, points").eq("round_id", round.id),
       supabase.from("rounds").select("number").eq("season_id", season.id).eq("number", round.number + 1).maybeSingle(),
     ]);
   const matches = (matchesData ?? []) as Match[];
@@ -73,7 +73,7 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
   const quadTotal = myQuad.reduce(
     (sum, q) =>
       sum +
-      (playerPoints.get(q.player_id) ?? 0) * (q.is_captain ? season.captain_multiplier : season.quad_multiplier),
+      (playerPoints.get(q.player_id) ?? 0) * quadMultiplier(season, playerPoints.get(q.player_id) ?? 0, q.is_captain),
     0,
   );
 
@@ -188,7 +188,7 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
                 {myQuad.map((q) => {
                   const p = players.find((pl) => pl.id === q.player_id);
                   const base = playerPoints.get(q.player_id);
-                  const mult = q.is_captain ? season.captain_multiplier : season.quad_multiplier;
+                  const mult = quadMultiplier(season, base ?? 0, q.is_captain);
                   return (
                     <div key={q.player_id} className="flex items-center justify-between">
                       <span>

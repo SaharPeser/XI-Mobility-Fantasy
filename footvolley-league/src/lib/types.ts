@@ -12,6 +12,22 @@ export type Season = {
   prize_1?: string | null;
   prize_2?: string | null;
   prize_3?: string | null;
+  // ניקוד אישי לשחקנים (עונשין נשמרים כמספר חיובי ומופחתים)
+  ppts_played?: number;
+  ppts_win?: number;
+  ppts_crushing_win?: number;
+  crushing_margin?: number;
+  ppts_block?: number;
+  ppts_great_defense?: number;
+  ppts_match_mvp?: number;
+  ppts_round_mvp?: number;
+  ppts_scored_8?: number;
+  ppts_scored_14?: number;
+  ppts_overtime?: number;
+  ppts_yellow?: number;
+  ppts_red?: number;
+  ppts_unforced_error?: number;
+  quad_multiply_negative?: boolean;
 };
 
 export type Team = {
@@ -36,6 +52,7 @@ export type Round = {
   name: string | null;
   stage: "regular" | "playoff" | "final_four" | "relegation";
   deadline: string;
+  mvp_player_id?: string | null;
 };
 
 export type Match = {
@@ -47,6 +64,19 @@ export type Match = {
   sort_order: number;
   home_score: number | null;
   away_score: number | null;
+};
+
+export type MatchPlayerStat = {
+  match_id: string;
+  player_id: string;
+  blocks: number;
+  great_defense: number;
+  unforced_errors: number;
+  /** 0 = פחות מ-8, 1 = 8 ומעלה, 2 = 14 ומעלה */
+  scored_tier: 0 | 1 | 2;
+  is_mvp: boolean;
+  yellow_card: boolean;
+  red_card: boolean;
 };
 
 export type MatchPrediction = {

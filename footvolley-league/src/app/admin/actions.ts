@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/data";
 import { fromLocalInput } from "@/lib/format";
-import { isValidSetScore } from "@/lib/scoring";
+import { DEFAULT_CRUSHING_MARGIN, isValidSetScore, PLAYER_RULES } from "@/lib/scoring";
 import { createClient } from "@/lib/supabase/server";
 
 // ---------- עזרים ----------
@@ -64,6 +64,29 @@ export async function updateSeason(fd: FormData) {
     })
     .eq("id", id);
   done(fd, error?.message.includes("prize_") ? "יש להריץ ב-Supabase את קובץ ה-SQL של הפרסים" : error);
+}
+
+const MISSING_PLAYER_SCORING = "יש להריץ ב-Supabase את קובץ ה-SQL של הניקוד האישי";
+
+function missingPlayerScoring(error: { message: string } | null) {
+  return error && /ppts_|crushing_margin|quad_multiply_negative|match_player_stats|mvp_player_id/.test(error.message)
+    ? MISSING_PLAYER_SCORING
+    : error;
+}
+
+export async function updatePlayerScoring(fd: FormData) {
+  const supabase = await admin();
+  const values: Record<string, number | boolean> = {
+    crushing_margin: num(fd, "crushing_margin") ?? DEFAULT_CRUSHING_MARGIN,
+    quad_multiply_negative: fd.get("quad_multiply_negative") === "on",
+  };
+  for (const rule of PLAYER_RULES) {
+    const v = num(fd, rule.key);
+    // עונשין נשמרים כמספר חיובי גם אם הוזן עם מינוס
+    values[rule.key] = v == null || Number.isNaN(v) ? rule.fallback : Math.abs(v);
+  }
+  const { error } = await supabase.from("seasons").update(values).eq("id", str(fd, "id"));
+  done(fd, missingPlayerScoring(error));
 }
 
 export async function activateSeason(fd: FormData) {
@@ -236,6 +259,51 @@ export async function deleteMatch(fd: FormData) {
 
 // ---------- ניקוד שחקנים ----------
 
+// ---------- ניקוד אישי: נתוני שחקנים במשחק ----------
+
+function count(fd: FormData, key: string): number {
+  const v = num(fd, key);
+  return v == null || Number.isNaN(v) || v < 0 ? 0 : Math.floor(v);
+}
+
+/** שומר את נתוני כל השחקנים במשחק אחד. רק מי שסומן "שיחק" נשמר. */
+export async function saveMatchStats(fd: FormData) {
+  const supabase = await admin();
+  const matchId = str(fd, "match_id");
+  const playerIds = str(fd, "player_ids").split(",").filter(Boolean);
+  const mvp = str(fd, "mvp");
+
+  const rows = playerIds
+    .filter((id) => fd.get(`played_${id}`) === "on")
+    .map((id) => ({
+      match_id: matchId,
+      player_id: id,
+      blocks: count(fd, `blocks_${id}`),
+      great_defense: count(fd, `defense_${id}`),
+      unforced_errors: count(fd, `errors_${id}`),
+      scored_tier: Math.min(2, count(fd, `tier_${id}`)),
+      is_mvp: mvp === id,
+      yellow_card: fd.get(`yellow_${id}`) === "on",
+      red_card: fd.get(`red_${id}`) === "on",
+    }));
+  if (mvp && !rows.some((r) => r.is_mvp)) return done(fd, "מצטיין המשחק חייב להיות שחקן שסומן ששיחק");
+
+  const { error: delError } = await supabase.from("match_player_stats").delete().eq("match_id", matchId);
+  if (delError) return done(fd, missingPlayerScoring(delError));
+  const { error } = rows.length ? await supabase.from("match_player_stats").insert(rows) : { error: null };
+  done(fd, missingPlayerScoring(error));
+}
+
+export async function setRoundMvp(fd: FormData) {
+  const supabase = await admin();
+  const { error } = await supabase
+    .from("rounds")
+    .update({ mvp_player_id: str(fd, "mvp_player_id") || null })
+    .eq("id", str(fd, "round_id"));
+  done(fd, missingPlayerScoring(error));
+}
+
+/** תיקון ידני לניקוד המחזור של שחקן (מתווסף לחישוב האוטומטי) */
 export async function savePlayerPoints(fd: FormData) {
   const supabase = await admin();
   const roundId = str(fd, "round_id");
