@@ -67,6 +67,19 @@ where id = (select id from auth.users where email = 'YOUR@EMAIL.com');
 
 השעות בעמוד הניהול הן לפי שעון ישראל.
 
+## מסמכים
+| מסמך | תוכן |
+|---|---|
+| [docs/ADMIN-GUIDE.md](docs/ADMIN-GUIDE.md) | מדריך למנהל הליגה (עברית) |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | מבנה הקוד וזרימת הנתונים |
+| [docs/DATABASE.md](docs/DATABASE.md) | טבלאות, הרשאות ופונקציות |
+| [docs/SCORING.md](docs/SCORING.md) | חוקי הניקוד |
+| [docs/DESIGN.md](docs/DESIGN.md) | עיצוב ומיתוג XIMOBILITY |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Supabase, Vercel ומשתני סביבה |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | תוספות מתוכננות |
+
+ל-Claude יש גם skills לפרויקט בתיקייה `.claude/skills/` בשורש ה-repo: שינוי במסד, כלל ניקוד חדש, מסך ניהול, עיצוב, והעלאה לאוויר.
+
 ## מבנה הקוד
 ```
 supabase/migrations/   סכמת המסד, הרשאות (RLS), חישוב הדירוג
