@@ -55,7 +55,7 @@ export default async function AdminSeasonPage() {
                 <input className="input" type="number" name="pts_table_position" defaultValue={s.pts_table_position} min={0} />
               </label>
               <label>
-                <span className="label">מכפיל רביעייה</span>
+                <span className="label">מכפיל שחקן בשישייה</span>
                 <input className="input" type="number" step="0.5" name="quad_multiplier" defaultValue={s.quad_multiplier} min={0} />
               </label>
               <label>
@@ -105,15 +105,15 @@ function PlayerScoringForm({ season }: { season: Season }) {
     <form action={updatePlayerScoring} className="card space-y-3">
       {R}
       <input type="hidden" name="id" value={season.id} />
-      <h2 className="text-lg font-bold">ניקוד אישי לשחקנים (לרביעייה)</h2>
+      <h2 className="text-lg font-bold">ניקוד אישי לשחקנים ושישיית המחזור</h2>
       {!ready && (
         <p className="rounded-xl bg-amber-100 px-3 py-2 text-sm text-amber-900">
           כדי להפעיל את הניקוד האישי יש להריץ ב-Supabase את קובץ ה-SQL של הניקוד האישי.
         </p>
       )}
       <p className="text-xs text-muted">
-        ניקוד המחזור של שחקן הוא סכום הנקודות שלו מכל המשחקים במחזור, ועוד בונוס מצטיין המחזור. ברביעייה הוא מוכפל
-        במכפיל הרביעייה, ולקפטן במכפיל הקפטן. בעונשין מזינים מספר חיובי, והוא יורד מהניקוד.
+        ניקוד המחזור של שחקן הוא סכום הנקודות שלו מכל המשחקים במחזור, ועוד בונוס מצטיין המחזור. בשישייה הוא מוכפל
+        במכפיל השחקן בשישייה, ולקפטן במכפיל הקפטן. בעונשין מזינים מספר חיובי, והוא יורד מהניקוד.
       </p>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {PLAYER_RULES.map((rule) => (
@@ -143,9 +143,31 @@ function PlayerScoringForm({ season }: { season: Season }) {
           />
         </label>
       </div>
+      <h3 className="pt-2 font-bold">שישיית המחזור</h3>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <label>
+          <span className="label">מספר שחקנים בהרכב</span>
+          <input className="input" type="number" min={1} max={12} name="squad_size" defaultValue={season.squad_size ?? 6} />
+        </label>
+        <label>
+          <span className="label">מקסימום ברזילאים</span>
+          <input
+            className="input"
+            type="number"
+            min={0}
+            max={12}
+            name="max_brazilians"
+            defaultValue={season.max_brazilians ?? 3}
+          />
+        </label>
+      </div>
+      <p className="text-xs text-muted">
+        מכפיל השחקן ומכפיל הקפטן נמצאים בהגדרות העונה למעלה. כדי שהקפטן יקבל בדיוק פי 2 משחקן רגיל, קובעים למשל
+        מכפיל שחקן 1 ומכפיל קפטן 2, או 2 ו-4.
+      </p>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="quad_multiply_negative" defaultChecked={season.quad_multiply_negative ?? true} />
-        להכפיל גם ניקוד שלילי ברביעייה (למשל קפטן עם כרטיס אדום)
+        להכפיל גם ניקוד שלילי בשישייה (למשל קפטן עם כרטיס אדום)
       </label>
       <button className="btn" disabled={!ready}>
         שמירת ניקוד שחקנים

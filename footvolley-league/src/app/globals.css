@@ -84,6 +84,36 @@ h1.page-title {
   @apply mb-4 text-2xl font-extrabold;
 }
 
+/* מגרש החול של שישיית המחזור */
+.sand {
+  background-color: #e8cf9c;
+  background-image:
+    radial-gradient(rgb(255 255 255 / 0.35) 0.7px, transparent 1.2px),
+    radial-gradient(rgb(120 84 30 / 0.18) 0.7px, transparent 1.3px),
+    radial-gradient(ellipse at 30% 20%, rgb(255 244 214 / 0.8), transparent 60%),
+    radial-gradient(ellipse at 70% 85%, rgb(196 150 82 / 0.35), transparent 65%),
+    linear-gradient(170deg, #efdcb0, #d9b97f);
+  background-size:
+    7px 7px,
+    11px 11px,
+    100% 100%,
+    100% 100%,
+    100% 100%;
+  background-position:
+    0 0,
+    3px 5px,
+    0 0,
+    0 0,
+    0 0;
+}
+
+.net {
+  background-color: rgb(28 26 27 / 0.25);
+  background-image:
+    repeating-linear-gradient(90deg, rgb(28 26 27 / 0.75) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(0deg, rgb(28 26 27 / 0.6) 0 1px, transparent 1px 5px);
+}
+
 /* דוגמת פסים אלכסוניים בהשראת ה-X של הלוגו */
 .brand-stripes {
   background-image:

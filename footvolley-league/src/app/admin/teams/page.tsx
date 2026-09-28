@@ -1,9 +1,10 @@
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { Flag, NATIONALITY_LABEL } from "@/components/Flag";
 import { NoSeason } from "@/components/NoSeason";
 import { TeamBadge } from "@/components/TeamBadge";
 import { getActiveSeason } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
-import type { Player, Team } from "@/lib/types";
+import type { Nationality, Player, Team } from "@/lib/types";
 import { addPlayers, createTeam, deletePlayer, deleteTeam, updatePlayer, updateTeam } from "../actions";
 
 const R = <input type="hidden" name="return_to" value="/admin/teams" />;
@@ -45,7 +46,11 @@ export default async function AdminTeamsPage() {
           <details key={team.id} className="card">
             <summary className="flex cursor-pointer items-center justify-between">
               <TeamBadge team={team} className="font-bold" />
-              <span className="text-sm text-muted">{teamPlayers.length} שחקנים</span>
+              <span className="text-sm text-muted">
+                {teamPlayers.length} שחקנים
+                {teamPlayers.some((p) => p.nationality === "BR") &&
+                  ` · ${teamPlayers.filter((p) => p.nationality === "BR").length} ברזילאים`}
+              </span>
             </summary>
 
             <div className="mt-4 space-y-4">
@@ -68,10 +73,12 @@ export default async function AdminTeamsPage() {
 
               <div className="space-y-1">
                 {teamPlayers.map((p) => (
-                  <form key={p.id} action={updatePlayer} className="flex items-center gap-2">
+                  <form key={p.id} action={updatePlayer} className="flex flex-wrap items-center gap-2 border-b border-border pb-2 last:border-0">
                     {R}
                     <input type="hidden" name="id" value={p.id} />
-                    <input className="input py-1" name="name" defaultValue={p.name} required />
+                    <Flag code={p.nationality} />
+                    <input className="input min-w-[9rem] flex-1 py-1" name="name" defaultValue={p.name} required />
+                    <NationalitySelect value={p.nationality} />
                     <label className="flex items-center gap-1 whitespace-nowrap text-sm">
                       <input type="checkbox" name="is_active" defaultChecked={p.is_active} /> פעיל
                     </label>
@@ -90,12 +97,29 @@ export default async function AdminTeamsPage() {
                   <span className="label">הוספת שחקנים (שם בכל שורה)</span>
                   <textarea className="input" name="names" rows={3} />
                 </label>
-                <button className="btn-secondary text-sm">הוספה</button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm text-muted">לאום:</span>
+                  <NationalitySelect />
+                  <button className="btn-secondary text-sm">הוספה</button>
+                </div>
+                <p className="text-xs text-muted">הלאום שנבחר חל על כל השמות שהוזנו. אפשר לשנות לכל שחקן אחר כך.</p>
               </form>
             </div>
           </details>
         );
       })}
     </div>
+  );
+}
+
+function NationalitySelect({ value = "IL" }: { value?: Nationality }) {
+  return (
+    <select className="input w-auto py-1" name="nationality" defaultValue={value} aria-label="לאום">
+      {(Object.keys(NATIONALITY_LABEL) as Nationality[]).map((code) => (
+        <option key={code} value={code}>
+          {NATIONALITY_LABEL[code]}
+        </option>
+      ))}
+    </select>
   );
 }

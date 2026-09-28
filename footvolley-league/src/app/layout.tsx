@@ -8,7 +8,7 @@ const heebo = Heebo({ variable: "--font-heebo", subsets: ["hebrew", "latin"] });
 
 export const metadata: Metadata = {
   title: "ליגת הפוצ'יוולי XIMOBILITY – משחק הניחושים",
-  description: "נחשו תוצאות, סדרו את הטבלה, בחרו רביעייה ותזכו בפרסים מבית XIMOBILITY",
+  description: "נחשו תוצאות, סדרו את הטבלה, בחרו שישייה ותזכו בפרסים מבית XIMOBILITY",
 };
 
 export const viewport: Viewport = {

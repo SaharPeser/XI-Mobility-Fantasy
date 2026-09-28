@@ -43,7 +43,7 @@ export default async function AdminRoundsPage() {
   return (
     <div className="space-y-6">
       <h1 className="page-title mb-0">מחזורים ומשחקים</h1>
-      <p className="text-sm text-muted">כל השעות לפי שעון ישראל. &quot;נעילה&quot; = המועד האחרון לשינוי ניחושים ורביעייה.</p>
+      <p className="text-sm text-muted">כל השעות לפי שעון ישראל. &quot;נעילה&quot; = המועד האחרון לשינוי ניחושים ושישייה.</p>
 
       {!rounds.length && (
         <form action={createRegularRounds} className="card space-y-3">

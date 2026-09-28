@@ -28,6 +28,9 @@ export type Season = {
   ppts_red?: number;
   ppts_unforced_error?: number;
   quad_multiply_negative?: boolean;
+  // שישיית המחזור
+  squad_size?: number;
+  max_brazilians?: number;
 };
 
 export type Team = {
@@ -38,11 +41,14 @@ export type Team = {
   final_position: number | null;
 };
 
+export type Nationality = "IL" | "BR";
+
 export type Player = {
   id: string;
   team_id: string;
   name: string;
   is_active: boolean;
+  nationality?: Nationality;
 };
 
 export type Round = {

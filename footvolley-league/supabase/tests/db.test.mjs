@@ -179,5 +179,26 @@ ok((await quadOf()) === 38, "crushing win adds points (21*2-16+8+4)");
 await as(U1, `insert into player_round_points (player_id, round_id, points) values ($1, $2, 1)`, [q[3], round]);
 ok((await quadOf()) === 40, "manual adjustment is added to the round score");
 
+// ---------- שישיית המחזור ולאום (20260928000000_squad_nationality) ----------
+const round2 = (await as(U1, `insert into rounds (season_id, number, deadline) values ($1, 2, now() + interval '1 hour') returning id`, [season])).rows[0].id;
+const br = ["שחקן 1ב", "שחקן 2ב", "שחקן 3ב", "שחקן 4ב"].map(pid);
+await as(U1, `update players set nationality = 'BR' where id = any($1)`, [br]);
+ok(!!(await fails(U1, `update players set nationality = 'US' where id = $1`, [br[0]])), "only IL/BR nationality allowed");
+ok(!!(await fails(U2, `update players set nationality = 'BR' where id = $1`, [q[0]])), "non-admin cannot change nationality");
+
+const il = ["שחקן 5א", "שחקן 6א", "שחקן 7א", "שחקן 8א"].map(pid);
+const squadOk = [...br.slice(0, 3), ...il.slice(0, 3)];
+ok(!!(await fails(U2, `select save_squad($1, $2, $3)`, [round2, squadOk.slice(0, 5), squadOk[0]])), "squad needs exactly 6");
+ok(!!(await fails(U2, `select save_squad($1, $2, $3)`, [round2, [...br, ...il.slice(0, 2)], br[0]])), "max 3 Brazilians");
+await as(U2, `select save_squad($1, $2, $3)`, [round2, squadOk, il[0]]);
+const sq = (await as(U2, `select player_id, is_captain from quad_picks where user_id = $1 and round_id = $2`, [U2, round2])).rows;
+ok(sq.length === 6 && sq.find((r) => r.is_captain).player_id === il[0], "squad of 6 saved with captain");
+await as(U1, `update seasons set max_brazilians = 4, squad_size = 7 where id = $1`, [season]);
+ok(!!(await fails(U2, `select save_squad($1, $2, $3)`, [round2, squadOk, il[0]])), "squad size follows season setting");
+await as(U2, `select save_squad($1, $2, $3)`, [round2, [...br, ...il.slice(0, 3)], br[0]]);
+ok((await as(U2, `select 1 from quad_picks where user_id = $1 and round_id = $2`, [U2, round2])).rows.length === 7, "Brazilian limit follows season setting");
+await as(U1, `update rounds set deadline = now() - interval '1 minute' where id = $1`, [round2]);
+ok(!!(await fails(U2, `select save_squad($1, $2, $3)`, [round2, [...br, ...il.slice(0, 3)], br[0]])), "locked squad cannot be edited");
+
 console.log(failures ? `\n${failures} FAILED` : "\nALL PASSED");
 process.exit(failures ? 1 : 0);

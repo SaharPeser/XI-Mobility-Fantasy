@@ -121,7 +121,7 @@ export default async function Home() {
             כל קבוצה במיקום הנכון בטבלת סוף העונה הסדירה: <b>{season.pts_table_position}</b> נק&apos;
           </li>
           <li>
-            רביעיית המחזור: הניקוד האישי של השחקן × <b>{season.quad_multiplier}</b>, והקפטן ×{" "}
+            שישיית המחזור: הניקוד האישי של השחקן × <b>{season.quad_multiplier}</b>, והקפטן ×{" "}
             <b>{season.captain_multiplier}</b>
           </li>
         </ul>

@@ -33,6 +33,14 @@ Use these as Tailwind classes (`bg-brand`, `text-accent`, `border-border`, ...).
 | `.brand-stripes` | Diagonal turquoise and blue stripes inspired by the "X". Use on `bg-brand-dark` panels |
 | `h1.page-title` | Page heading |
 
+## Sand court (squad picker)
+`src/app/rounds/[number]/SandPitch.tsx`, a client component, also used read-only after the lock with points per player.
+- Court: `.sand` texture + white lines + `.net` in the middle (both in `globals.css`). Slots are placed by `slotPositions(size)`: pyramid (2 back, 1 front) in each half for 6 players.
+- Empty slot: dashed circle with **+**, which opens the player picker sheet (search, team chips, flags; Brazilians are disabled when the limit is reached).
+- Filled slot: dark circle with initials, a flag badge, and a name/team label. Tapping it opens a sheet with **make captain** and **remove**.
+- Captain: gold gradient **C** badge (`from-yellow-200 via-amber-400 to-amber-600`).
+- Flags: `<Flag code="BR|IL" />` is an inline SVG, because Windows does not render flag emoji.
+
 ## Sponsor placements
 - Header: logo + "ליגת הפוצ'יוולי" on every page (`Nav.tsx`)
 - Footer: "בחסות" + logo, linking to the sponsor

@@ -69,7 +69,7 @@ export async function updateSeason(fd: FormData) {
 const MISSING_PLAYER_SCORING = "יש להריץ ב-Supabase את קובץ ה-SQL של הניקוד האישי";
 
 function missingPlayerScoring(error: { message: string } | null) {
-  return error && /ppts_|crushing_margin|quad_multiply_negative|match_player_stats|mvp_player_id/.test(error.message)
+  return error && /ppts_|crushing_margin|quad_multiply_negative|match_player_stats|mvp_player_id|squad_size|max_brazilians|nationality/.test(error.message)
     ? MISSING_PLAYER_SCORING
     : error;
 }
@@ -80,6 +80,10 @@ export async function updatePlayerScoring(fd: FormData) {
     crushing_margin: num(fd, "crushing_margin") ?? DEFAULT_CRUSHING_MARGIN,
     quad_multiply_negative: fd.get("quad_multiply_negative") === "on",
   };
+  const squadSize = num(fd, "squad_size");
+  const maxBrazilians = num(fd, "max_brazilians");
+  if (squadSize != null) values.squad_size = Math.min(12, Math.max(1, Math.floor(squadSize)));
+  if (maxBrazilians != null) values.max_brazilians = Math.max(0, Math.floor(maxBrazilians));
   for (const rule of PLAYER_RULES) {
     const v = num(fd, rule.key);
     // עונשין נשמרים כמספר חיובי גם אם הוזן עם מינוס
@@ -131,17 +135,24 @@ export async function addPlayers(fd: FormData) {
     .map((n) => n.trim())
     .filter(Boolean);
   if (!names.length) return done(fd, "יש להזין לפחות שם אחד");
-  const { error } = await supabase.from("players").insert(names.map((name) => ({ team_id: teamId, name })));
-  done(fd, error);
+  const nationality = nationalityOf(fd);
+  const { error } = await supabase
+    .from("players")
+    .insert(names.map((name) => ({ team_id: teamId, name, nationality })));
+  done(fd, missingPlayerScoring(error));
+}
+
+function nationalityOf(fd: FormData): "IL" | "BR" {
+  return str(fd, "nationality") === "BR" ? "BR" : "IL";
 }
 
 export async function updatePlayer(fd: FormData) {
   const supabase = await admin();
   const { error } = await supabase
     .from("players")
-    .update({ name: str(fd, "name"), is_active: fd.get("is_active") === "on" })
+    .update({ name: str(fd, "name"), is_active: fd.get("is_active") === "on", nationality: nationalityOf(fd) })
     .eq("id", str(fd, "id"));
-  done(fd, error);
+  done(fd, missingPlayerScoring(error));
 }
 
 export async function deletePlayer(fd: FormData) {

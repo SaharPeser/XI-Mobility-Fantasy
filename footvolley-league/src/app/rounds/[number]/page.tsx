@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Flag } from "@/components/Flag";
 import { NoSeason } from "@/components/NoSeason";
 import { TeamBadge } from "@/components/TeamBadge";
 import { getActiveSeason, getSessionUser } from "@/lib/data";
@@ -8,7 +9,7 @@ import { predictionPoints, quadMultiplier } from "@/lib/scoring";
 import { createClient } from "@/lib/supabase/server";
 import type { Match, Player, Round, Team } from "@/lib/types";
 import { PredictionsForm } from "./PredictionsForm";
-import { QuadPicker } from "./QuadPicker";
+import { SandPitch } from "./SandPitch";
 
 export default async function RoundPage({ params }: PageProps<"/rounds/[number]">) {
   const { number } = await params;
@@ -31,20 +32,20 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
       supabase.from("teams").select("*").eq("season_id", season.id),
       supabase
         .from("players")
-        .select("id, team_id, name, is_active, teams!inner(season_id)")
+        .select("*, teams!inner(season_id)")
         .eq("teams.season_id", season.id)
-        .eq("is_active", true)
         .order("name"),
       supabase.from("player_round_scores").select("player_id, points").eq("round_id", round.id),
       supabase.from("rounds").select("number").eq("season_id", season.id).eq("number", round.number + 1).maybeSingle(),
     ]);
   const matches = (matchesData ?? []) as Match[];
   const teams: Record<string, Team> = Object.fromEntries((teamsData ?? []).map((t) => [t.id, t]));
-  const players: Player[] = (playersData ?? []).map((p) => ({
+  const allPlayers: Player[] = (playersData ?? []).map((p) => ({
     id: p.id,
     team_id: p.team_id,
     name: p.name,
     is_active: p.is_active,
+    nationality: p.nationality ?? "IL",
   }));
   const playerPoints = new Map((pointsData ?? []).map((p) => [p.player_id, Number(p.points)]));
 
@@ -67,6 +68,11 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
   }
 
   const locked = isPast(round.deadline);
+  // לבחירה: שחקנים פעילים, ועוד מי שכבר נבחר (גם אם הפך ללא פעיל)
+  const chosenIds = new Set(myQuad.map((q) => q.player_id));
+  const players = allPlayers.filter((p) => p.is_active || chosenIds.has(p.id));
+  const squadSize = season.squad_size ?? 6;
+  const maxBrazilians = season.max_brazilians ?? 3;
   const title = round.name || `מחזור ${round.number}`;
 
   const matchTotal = matches.reduce((sum, m) => sum + (predictionPoints(season, m, myPreds[m.id]) ?? 0), 0);
@@ -168,56 +174,76 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold">רביעיית המחזור</h2>
+        <h2 className="mb-3 text-lg font-bold">שישיית המחזור</h2>
         <div className="card">
           {!players.length ? (
             <p className="text-muted">עוד לא הוזנו שחקנים.</p>
           ) : user && !locked ? (
-            <QuadPicker
+            <SandPitch
               roundId={round.id}
               players={players}
               teams={teams}
               initialIds={myQuad.map((q) => q.player_id)}
               initialCaptain={myQuad.find((q) => q.is_captain)?.player_id ?? null}
-              quadMultiplier={season.quad_multiplier}
-              captainMultiplier={season.captain_multiplier}
+              size={squadSize}
+              maxBrazilians={maxBrazilians}
+              playerMultiplier={Number(season.quad_multiplier)}
+              captainMultiplier={Number(season.captain_multiplier)}
             />
           ) : user ? (
             myQuad.length ? (
-              <div className="space-y-2">
-                {myQuad.map((q) => {
-                  const p = players.find((pl) => pl.id === q.player_id);
-                  const base = playerPoints.get(q.player_id);
-                  const mult = quadMultiplier(season, base ?? 0, q.is_captain);
-                  return (
-                    <div key={q.player_id} className="flex items-center justify-between">
-                      <span>
-                        {q.is_captain && (
-                          <span className="ml-1 rounded-full bg-brand px-1.5 text-xs font-bold text-brand-dark">C</span>
-                        )}
-                        {p?.name ?? "שחקן"} <span className="text-xs text-muted">{p && teams[p.team_id]?.name}</span>
-                      </span>
-                      <span className="tabular-nums text-muted">
-                        {base == null ? (
-                          "ממתין לניקוד"
-                        ) : (
-                          <>
-                            {base} × {mult} = <b className="text-foreground">{base * mult}</b>
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
-                <div className="border-t border-border pt-2 text-sm">
-                  סה&quot;כ רביעייה: <b>{quadTotal}</b>
+              <div className="space-y-3">
+                <SandPitch
+                  roundId={round.id}
+                  players={players}
+                  teams={teams}
+                  initialIds={myQuad.map((q) => q.player_id)}
+                  initialCaptain={myQuad.find((q) => q.is_captain)?.player_id ?? null}
+                  size={Math.max(squadSize, myQuad.length)}
+                  maxBrazilians={maxBrazilians}
+                  playerMultiplier={Number(season.quad_multiplier)}
+                  captainMultiplier={Number(season.captain_multiplier)}
+                  readOnly
+                  points={Object.fromEntries(myQuad.map((q) => [q.player_id, playerPoints.get(q.player_id) ?? 0]))}
+                />
+                <div className="space-y-2">
+                  {myQuad.map((q) => {
+                    const p = players.find((pl) => pl.id === q.player_id);
+                    const base = playerPoints.get(q.player_id);
+                    const mult = quadMultiplier(season, base ?? 0, q.is_captain);
+                    return (
+                      <div key={q.player_id} className="flex items-center justify-between gap-2">
+                        <span className="flex items-center gap-1.5">
+                          <Flag code={p?.nationality} />
+                          {q.is_captain && (
+                            <span className="grid h-5 w-5 place-items-center rounded-full bg-gradient-to-br from-yellow-200 to-amber-500 text-[10px] font-black text-amber-950">
+                              C
+                            </span>
+                          )}
+                          {p?.name ?? "שחקן"} <span className="text-xs text-muted">{p && teams[p.team_id]?.name}</span>
+                        </span>
+                        <span className="tabular-nums text-muted">
+                          {base == null ? (
+                            "ממתין לניקוד"
+                          ) : (
+                            <>
+                              {base} × {mult} = <b className="text-foreground">{base * mult}</b>
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <div className="border-t border-border pt-2 text-sm">
+                    סה&quot;כ שישייה: <b>{quadTotal}</b>
+                  </div>
                 </div>
               </div>
             ) : (
-              <p className="text-muted">לא נבחרה רביעייה במחזור זה.</p>
+              <p className="text-muted">לא נבחרה שישייה במחזור זה.</p>
             )
           ) : (
-            <p className="text-muted">התחברו כדי לבחור רביעייה.</p>
+            <p className="text-muted">התחברו כדי לבחור שישייה.</p>
           )}
         </div>
       </section>

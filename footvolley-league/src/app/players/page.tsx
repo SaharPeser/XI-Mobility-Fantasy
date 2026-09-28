@@ -46,7 +46,7 @@ export default async function PlayersPage({ searchParams }: PageProps<"/players"
     <div className="space-y-4">
       <h1 className="page-title mb-0">שחקנים – ניקוד אישי</h1>
       <p className="text-sm text-muted">
-        הניקוד של כל שחקן, שממנו מחושבת רביעיית המחזור.{" "}
+        הניקוד של כל שחקן, שממנו מחושבת שישיית המחזור.{" "}
         <Link href="/rules#players" className="text-accent">
           איך מחושב הניקוד?
         </Link>

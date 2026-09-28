@@ -39,14 +39,16 @@ export async function saveMatchPredictions(
   return { ok: true };
 }
 
-export async function saveQuad(roundId: string, playerIds: string[], captainId: string): Promise<SaveResult> {
+export async function saveSquad(roundId: string, playerIds: string[], captainId: string): Promise<SaveResult> {
   const supabase = await createClient();
-  const { error } = await supabase.rpc("save_quad", {
+  const { error } = await supabase.rpc("save_squad", {
     p_round_id: roundId,
     p_player_ids: playerIds,
     p_captain_id: captainId,
   });
-  if (error) return { error: error.message };
+  if (error) {
+    return { error: error.code === "PGRST202" ? "יש להריץ ב-Supabase את קובץ ה-SQL של השישייה" : error.message };
+  }
   revalidatePath("/rounds", "layout");
   return { ok: true };
 }

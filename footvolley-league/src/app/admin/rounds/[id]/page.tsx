@@ -143,7 +143,7 @@ export default async function AdminRoundPage({ params }: PageProps<"/admin/round
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-bold">ניקוד אישי לשחקנים (לרביעייה)</h2>
+        <h2 className="text-lg font-bold">ניקוד אישי לשחקנים (לשישייה)</h2>
         {!statsReady ? (
           <div className="card text-sm text-amber-700">
             כדי להזין נתוני שחקנים יש להריץ ב-Supabase את קובץ ה-SQL של הניקוד האישי.

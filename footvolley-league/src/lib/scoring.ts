@@ -141,7 +141,7 @@ export function playerRuleValue(season: Partial<Record<PlayerRuleKey, number>>, 
 
 export const DEFAULT_CRUSHING_MARGIN = 7;
 
-/** המכפיל של שחקן ברביעייה – זהה ל-get_leaderboard */
+/** המכפיל של שחקן בשישייה – זהה ל-get_leaderboard */
 export function quadMultiplier(
   season: Pick<Season, "quad_multiplier" | "captain_multiplier" | "quad_multiply_negative">,
   points: number,

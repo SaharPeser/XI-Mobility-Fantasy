@@ -29,7 +29,7 @@ export default async function RulesPage() {
     <div className="space-y-5">
       <h1 className="page-title mb-0">חוקי הניקוד</h1>
       <p className="text-sm text-muted">
-        יש שלוש דרכים לצבור נקודות: ניחוש תוצאות, ניחוש הטבלה ורביעיית המחזור. כל הנקודות מתחברות לדירוג הכללי.
+        יש שלוש דרכים לצבור נקודות: ניחוש תוצאות, ניחוש הטבלה ושישיית המחזור. כל הנקודות מתחברות לדירוג הכללי.
       </p>
 
       <section className="card space-y-2">
@@ -56,10 +56,11 @@ export default async function RulesPage() {
       </section>
 
       <section className="card space-y-2">
-        <h2 className="text-lg font-bold">3. רביעיית המחזור</h2>
+        <h2 className="text-lg font-bold">3. שישיית המחזור</h2>
         <p className="text-sm">
-          בכל מחזור בוחרים 4 שחקנים וקפטן. כל שחקן ברביעייה מקבל את הניקוד האישי שלו במחזור × <b>{q}</b>, והקפטן ×{" "}
-          <b>{c}</b>.
+          בכל מחזור בוחרים על מגרש החול <b>{season.squad_size ?? 6}</b> שחקנים, מתוכם לכל היותר{" "}
+          <b>{season.max_brazilians ?? 3}</b> ברזילאים, וקפטן אחד. כל שחקן בשישייה מקבל את הניקוד האישי שלו במחזור ×{" "}
+          <b>{q}</b>, והקפטן × <b>{c}</b>.
         </p>
         <p className="text-sm">
           {season.quad_multiply_negative === false

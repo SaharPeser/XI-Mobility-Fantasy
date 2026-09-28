@@ -7,14 +7,15 @@ All schema lives in `supabase/migrations/`, applied in file-name order. **Never 
 | `20260924000000_init.sql` | Full schema, RLS, RPC functions |
 | `20260925000000_sponsor_prizes.sql` | `seasons.prize_1..3` (XIMOBILITY prize text) |
 | `20260927000000_player_scoring.sql` | Personal player scoring: `seasons.ppts_*`, `crushing_margin`, `quad_multiply_negative`, `rounds.mvp_player_id`, `match_player_stats`, views `player_match_points` and `player_round_scores`. `get_leaderboard` now reads quad points from the view |
+| `20260928000000_squad_nationality.sql` | `players.nationality` (`IL`/`BR`), `seasons.squad_size` and `max_brazilians`, RPC `save_squad` |
 
 ## Tables
 | Table | Purpose | Key columns |
 |---|---|---|
 | `profiles` | One row per auth user | `display_name`, `is_admin` |
-| `seasons` | A season and its scoring settings | `is_active` (max one), `table_deadline`, `pts_winner`, `pts_exact`, `pts_table_position`, `quad_multiplier`, `captain_multiplier`, `prize_1..3`, `ppts_*` (personal scoring, penalties stored positive), `crushing_margin`, `quad_multiply_negative` |
+| `seasons` | A season and its scoring settings | `is_active` (max one), `table_deadline`, `pts_winner`, `pts_exact`, `pts_table_position`, `quad_multiplier`, `captain_multiplier`, `prize_1..3`, `ppts_*` (personal scoring, penalties stored positive), `crushing_margin`, `quad_multiply_negative`, `squad_size`, `max_brazilians` |
 | `teams` | Teams in a season | `name` (unique per season), `logo_url`, `final_position` (set by admin at season end) |
-| `players` | Players in a team | `is_active` (inactive players cannot be picked) |
+| `players` | Players in a team | `is_active` (inactive players cannot be picked), `nationality` (`IL` / `BR`, default `IL`) |
 | `rounds` | A round with its lock time | `number` (unique per season), `stage` (`regular` / `playoff` / `final_four` / `relegation`), `deadline`, `mvp_player_id` (round MVP) |
 | `matches` | A match in a round | `home_team_id`, `away_team_id`, `starts_at`, `sort_order`, `home_score`, `away_score` (null until played) |
 | `match_player_stats` | A player's stats in one match (row = played) | PK (`match_id`, `player_id`), `blocks`, `great_defense`, `unforced_errors`, `scored_tier` (0/1/2), `is_mvp` (max one per match), `yellow_card`, `red_card`. A trigger checks the player belongs to one of the match teams |
@@ -44,7 +45,8 @@ Cascades: deleting a season, team, round or match deletes everything under it, *
 | `add_league_owner()` | trigger on `leagues` | Adds the owner as a member |
 | `join_league(code)` | RPC | Joins by invite code (case-insensitive) |
 | `save_table_prediction(season_id, team_ids[])` | RPC | Atomic replace. All teams exactly once, before `table_deadline` |
-| `save_quad(round_id, player_ids[], captain_id)` | RPC | Atomic replace. Exactly 4 active players of the season, captain among them, before the deadline |
+| `save_squad(round_id, player_ids[], captain_id)` | RPC | Atomic replace of the round squad. Exactly `squad_size` active players of the season, at most `max_brazilians` Brazilians, captain among them, before the deadline. Writes `quad_picks` |
+| `save_quad(round_id, player_ids[], captain_id)` | RPC (legacy) | Old 4-player version, no longer used by the app |
 | `get_leaderboard(season_id, league_id?)` | RPC, security definer | All scoring. Returns `match_points`, `table_points`, `quad_points`, `total`, `rank`. With `league_id`, returns only members, and nothing if the caller is not a member |
 
 ## Row Level Security

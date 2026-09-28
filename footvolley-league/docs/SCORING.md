@@ -31,8 +31,10 @@ Before `table_deadline`, the user orders all teams (12). After the regular seaso
 
 Table zones (display only, `zoneForPosition`): 1–2 Final Four · 3–6 playoff (3 vs 6, 4 vs 5) · 9–10 promotion/relegation playoff against league 2 · 11–12 relegation.
 
-## 3. Round quad (רביעיית המחזור)
-The user picks 4 active players and one captain before the round deadline.
+## 3. Round squad (שישיית המחזור)
+The user picks `seasons.squad_size` (default 6) active players and one captain before the round deadline, on the sand-court picker (`src/app/rounds/[number]/SandPitch.tsx`). At most `seasons.max_brazilians` (default 3) players with `nationality = 'BR'`. Saved through `save_squad()`, which enforces size, the Brazilian limit and the deadline.
+
+Internal names still say "quad" (`quad_picks`, `quad_multiplier`, `quad_points`, `save_quad`). They were kept to avoid a risky rename. `save_quad` (exactly 4) is legacy and unused by the app.
 
 ```
 quad points = Σ round_score × quad_multiplier (default 2)

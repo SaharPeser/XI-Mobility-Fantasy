@@ -56,7 +56,7 @@ export default async function RoundsPage() {
                     </div>
                   )}
                   {user && <div className={quadDone.has(r.id) ? "text-emerald-600" : "text-muted"}>
-                    {quadDone.has(r.id) ? "רביעייה ✓" : "ללא רביעייה"}
+                    {quadDone.has(r.id) ? "שישייה ✓" : "ללא שישייה"}
                   </div>}
                   {!locked && <span className="mt-1 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-800">פתוח</span>}
                 </div>

@@ -13,7 +13,7 @@ export function LeaderboardTable({ rows, meId }: { rows: LeaderboardRow[]; meId?
             <th className="p-3 text-right">משתתף</th>
             <th className="hidden p-3 sm:table-cell">משחקים</th>
             <th className="hidden p-3 sm:table-cell">טבלה</th>
-            <th className="hidden p-3 sm:table-cell">רביעייה</th>
+            <th className="hidden p-3 sm:table-cell">שישייה</th>
             <th className="p-3">סה&quot;כ</th>
           </tr>
         </thead>
