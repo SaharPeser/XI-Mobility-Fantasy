@@ -120,3 +120,47 @@ h1.page-title {
     linear-gradient(115deg, transparent 0 58%, rgb(72 200 232 / 0.16) 58% 64%, transparent 64% 70%, rgb(72 200 232 / 0.1) 70% 73%, transparent 73%),
     linear-gradient(65deg, transparent 0 78%, rgb(23 127 171 / 0.35) 78% 86%, transparent 86%);
 }
+
+/* באנר "החליקו": יד שזזה ימינה ושמאלה */
+.swipe-hand {
+  display: inline-block;
+  animation: swipe-hand 1.8s ease-in-out infinite;
+}
+
+@keyframes swipe-hand {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  25% {
+    transform: translateX(12px) rotate(10deg);
+  }
+  75% {
+    transform: translateX(-12px) rotate(-10deg);
+  }
+}
+
+/* רמז לגרירה: הקלף העליון מתנדנד פעם אחת כשהעמוד נפתח */
+.deck-hint {
+  animation: deck-hint 1.4s ease-in-out 0.8s 1;
+}
+
+@keyframes deck-hint {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  30% {
+    transform: translateX(28px) rotate(2deg);
+  }
+  60% {
+    transform: translateX(-10px) rotate(-1deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swipe-hand,
+  .deck-hint {
+    animation: none;
+  }
+}

@@ -41,6 +41,12 @@ Use these as Tailwind classes (`bg-brand`, `text-accent`, `border-border`, ...).
 - Captain: gold gradient **C** badge (`from-yellow-200 via-amber-400 to-amber-600`).
 - Flags: `<Flag code="BR|IL" />` is an inline SVG, because Windows does not render flag emoji.
 
+## Rounds deck (`/rounds`)
+`src/app/rounds/RoundDeck.tsx`, a client component. The rounds are a stack of cards in the hero style (`bg-brand-dark` + `.brand-stripes` + "בחסות" logo line), round 1 on top.
+- Drag right = next round, drag left = previous (RTL). There are also arrow buttons, dots (turquoise = open, gray = locked) and the keyboard arrows. "למחזור הפתוח" jumps to the first open round.
+- Horizontal dragging starts only after a clear horizontal move, so vertical page scroll still works (`touch-pan-y`). A drag never counts as a click on the card button.
+- Cards behind the top one are offset down, scaled and slightly rotated. The container needs bottom margin (`mb-12`) for them, and the wrapper uses `overflow-x-clip` so a card flying off never causes horizontal scroll.
+
 ## Sponsor placements
 - Header: logo + "ליגת הפוצ'יוולי" on every page (`Nav.tsx`)
 - Footer: "בחסות" + logo, linking to the sponsor
