@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/data";
 import { logout } from "@/app/login/actions";
+import { NavLinks } from "./NavLinks";
 import { SponsorLogo } from "./Sponsor";
 
 const LINKS = [
@@ -44,17 +45,7 @@ export async function Nav() {
           )}
         </div>
       </div>
-      <nav className="mx-auto flex max-w-3xl gap-1 overflow-x-auto px-2 pb-2 text-sm">
-        {LINKS.map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            className="whitespace-nowrap rounded-lg px-3 py-1.5 text-white/80 hover:bg-white/10 hover:text-white"
-          >
-            {l.label}
-          </Link>
-        ))}
-      </nav>
+      <NavLinks items={LINKS} className="mx-auto max-w-3xl px-2 pb-2" />
     </header>
   );
 }

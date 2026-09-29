@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Suspense } from "react";
+import { NavLinks } from "@/components/NavLinks";
 import { requireAdmin } from "@/lib/data";
 import { AdminNotice } from "./AdminNotice";
 
@@ -16,13 +16,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
     <div>
       <div className="mb-4 flex items-center gap-2">
         <span className="rounded-lg bg-brand px-2 py-1 text-sm font-bold text-brand-dark">ניהול</span>
-        <nav className="flex gap-1 overflow-x-auto text-sm">
-          {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="whitespace-nowrap rounded-lg px-3 py-1.5 hover:bg-accent-soft">
-              {l.label}
-            </Link>
-          ))}
-        </nav>
+        <NavLinks items={LINKS} variant="light" exact={["/admin"]} />
       </div>
       <Suspense>
         <AdminNotice />
