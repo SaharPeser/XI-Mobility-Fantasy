@@ -108,7 +108,7 @@ export function SandPitch({
   return (
     <div className="space-y-3">
       {!readOnly && (
-        <p className="text-sm text-muted">
+        <p className="text-sm text-white/70">
           בחרו {size} שחקנים (עד {maxBrazilians} ברזילאים) וקפטן. כל שחקן מקבל את הניקוד האישי שלו במחזור ×{" "}
           {playerMultiplier}, והקפטן × {captainMultiplier}. לחצו על <b>+</b> כדי להוסיף שחקן, ועל שחקן כדי להסיר
           אותו או למנות אותו לקפטן.
@@ -128,7 +128,7 @@ export function SandPitch({
       )}
 
       {/* המגרש */}
-      <div className="relative mx-auto aspect-[3/4] w-full max-w-md overflow-hidden rounded-2xl shadow-inner ring-1 ring-black/10 select-none">
+      <div className="relative mx-auto aspect-[3/4] w-full max-w-md overflow-hidden rounded-2xl shadow-2xl ring-2 ring-brand/40 select-none">
         <div className="sand absolute inset-0" />
         {/* קווי המגרש */}
         <div className="absolute inset-[6%] rounded-sm border-[3px] border-white/90" />
@@ -201,11 +201,11 @@ export function SandPitch({
 
       {!readOnly && (
         <div className="flex items-center gap-3">
-          <button className="btn flex-1" onClick={submit} disabled={pending || !full || !captain}>
+          <button className="btn-brand flex-1 py-2.5 disabled:opacity-50" onClick={submit} disabled={pending || !full || !captain}>
             {pending ? "שומר..." : "שמירת השישייה"}
           </button>
-          {status.ok && <span className="text-sm text-emerald-600">נשמר ✓</span>}
-          {status.error && <span className="text-sm text-rose-600">{status.error}</span>}
+          {status.ok && <span className="text-sm font-medium text-brand">נשמר ✓</span>}
+          {status.error && <span className="text-sm text-rose-300">{status.error}</span>}
         </div>
       )}
 
@@ -259,10 +259,10 @@ function Pill({ ok, warn, children }: { ok: boolean; warn?: boolean; children: R
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium ${
         !ok
-          ? "bg-rose-100 text-rose-800"
+          ? "bg-rose-500/20 text-rose-200 ring-1 ring-rose-400/30"
           : warn
-            ? "bg-amber-100 text-amber-900"
-            : "bg-accent-soft text-accent"
+            ? "bg-amber-400/15 text-amber-200 ring-1 ring-amber-300/30"
+            : "bg-brand/15 text-brand ring-1 ring-brand/30"
       }`}
     >
       {children}
@@ -293,7 +293,7 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
         aria-modal="true"
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-t-2xl bg-card shadow-2xl sm:rounded-2xl"
+        className="flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-t-2xl bg-card text-foreground shadow-2xl sm:rounded-2xl"
       >
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <h3 className="font-bold">{title}</h3>

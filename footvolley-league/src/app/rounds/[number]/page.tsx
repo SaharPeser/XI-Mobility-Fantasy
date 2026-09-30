@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Flag } from "@/components/Flag";
+import { SponsorLogo } from "@/components/Sponsor";
+import { VsDivider } from "@/components/VsDivider";
 import { NoSeason } from "@/components/NoSeason";
 import { TeamBadge } from "@/components/TeamBadge";
 import { getActiveSeason, getSessionUser } from "@/lib/data";
@@ -124,46 +126,62 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
           <div className="space-y-2">
             {user && locked && (
               <p className="text-sm">
-                הניקוד שלך במשחקים: <b>{matchTotal}</b>
+                הניקוד שלך במשחקים: <b className="text-accent">{matchTotal}</b>
               </p>
             )}
             {matches.map((m) => {
               const pred = myPreds[m.id];
               const pts = predictionPoints(season, m, pred);
               return (
-                <div key={m.id} className="card">
-                  <div className="mb-2 flex items-center justify-between text-xs text-muted">
+                <div key={m.id} className="brand-card brand-stripes">
+                  <div className="mb-2 flex items-center justify-between text-xs text-white/60">
                     <span>{formatDateTime(m.starts_at)}</span>
                     <span className="flex gap-3">
                       <span className="w-10 text-center">תוצאה</span>
                       {user && <span className="w-10 text-center">ניחוש</span>}
                     </span>
                   </div>
-                  <div className="space-y-1.5">
-                    {(["home", "away"] as const).map((side) => (
-                      <div key={side} className="flex items-center gap-3">
-                        <TeamBadge
-                          team={teams[side === "home" ? m.home_team_id : m.away_team_id]}
-                          className="min-w-0 flex-1 font-medium"
-                        />
-                        <span className="w-10 text-center text-lg font-bold tabular-nums">
-                          {m[`${side}_score`] ?? "–"}
-                        </span>
-                        {user && (
-                          <span className="w-10 text-center tabular-nums text-muted">
-                            {pred?.[`${side}_score`] ?? "—"}
-                          </span>
-                        )}
-                      </div>
-                    ))}
+                  <div>
+                    {(["home", "away"] as const).map((side) => {
+                      const score = m[`${side}_score`];
+                      const other = m[side === "home" ? "away_score" : "home_score"];
+                      const won = score != null && other != null && score > other;
+                      return (
+                        <div key={side}>
+                          {side === "away" && <VsDivider />}
+                          <div className="flex items-center gap-3">
+                            <TeamBadge
+                              team={teams[side === "home" ? m.home_team_id : m.away_team_id]}
+                              className={`min-w-0 flex-1 ${won ? "font-extrabold text-white" : "font-medium text-white/75"}`}
+                            />
+                            <span
+                              className={`w-10 text-center text-xl font-extrabold tabular-nums ${won ? "text-brand" : "text-white"}`}
+                            >
+                              {score ?? "–"}
+                            </span>
+                            {user && (
+                              <span className="w-10 rounded-md bg-white/10 py-0.5 text-center tabular-nums text-white/70">
+                                {pred?.[`${side}_score`] ?? "—"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                   {user && pts != null && (
-                    <div
-                      className={`mt-2 text-left text-sm ${
-                        pts === season.pts_exact ? "font-bold text-emerald-600" : pts ? "text-emerald-600" : "text-muted"
-                      }`}
-                    >
-                      {pts === season.pts_exact ? "תוצאה מדויקת! " : ""}+{pts}
+                    <div className="mt-3 flex justify-end">
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-sm font-bold ${
+                          pts === season.pts_exact
+                            ? "bg-brand text-brand-dark"
+                            : pts
+                              ? "bg-brand/20 text-brand"
+                              : "bg-white/10 text-white/60"
+                        }`}
+                      >
+                        {pts === season.pts_exact ? "תוצאה מדויקת! " : ""}+{pts}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -175,9 +193,23 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
 
       <section>
         <h2 className="mb-3 text-lg font-bold">שישיית המחזור</h2>
-        <div className="card">
+        <div className="brand-card brand-stripes p-4 sm:p-5">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div>
+              <div className="text-xl font-extrabold">
+                שישיית <span className="text-brand">{round.name || `מחזור ${round.number}`}</span>
+              </div>
+              <div className="text-xs text-white/60">
+                {squadSize} שחקנים · עד {maxBrazilians} ברזילאים · קפטן ×{Number(season.captain_multiplier)}
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-white/60">
+              <span>בחסות</span>
+              <SponsorLogo className="h-3.5" />
+            </div>
+          </div>
           {!players.length ? (
-            <p className="text-muted">עוד לא הוזנו שחקנים.</p>
+            <p className="text-white/70">עוד לא הוזנו שחקנים.</p>
           ) : user && !locked ? (
             <SandPitch
               roundId={round.id}
@@ -192,7 +224,7 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
             />
           ) : user ? (
             myQuad.length ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <SandPitch
                   roundId={round.id}
                   players={players}
@@ -206,7 +238,7 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
                   readOnly
                   points={Object.fromEntries(myQuad.map((q) => [q.player_id, playerPoints.get(q.player_id) ?? 0]))}
                 />
-                <div className="space-y-2">
+                <div className="space-y-2 rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
                   {myQuad.map((q) => {
                     const p = players.find((pl) => pl.id === q.player_id);
                     const base = playerPoints.get(q.player_id);
@@ -220,30 +252,31 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
                               C
                             </span>
                           )}
-                          {p?.name ?? "שחקן"} <span className="text-xs text-muted">{p && teams[p.team_id]?.name}</span>
+                          {p?.name ?? "שחקן"} <span className="text-xs text-white/50">{p && teams[p.team_id]?.name}</span>
                         </span>
-                        <span className="tabular-nums text-muted">
+                        <span className="tabular-nums text-white/60">
                           {base == null ? (
                             "ממתין לניקוד"
                           ) : (
                             <>
-                              {base} × {mult} = <b className="text-foreground">{base * mult}</b>
+                              {base} × {mult} = <b className="text-brand">{base * mult}</b>
                             </>
                           )}
                         </span>
                       </div>
                     );
                   })}
-                  <div className="border-t border-border pt-2 text-sm">
-                    סה&quot;כ שישייה: <b>{quadTotal}</b>
+                  <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                    <span className="text-sm text-white/70">סה&quot;כ שישייה</span>
+                    <b className="text-2xl text-brand tabular-nums">{quadTotal}</b>
                   </div>
                 </div>
               </div>
             ) : (
-              <p className="text-muted">לא נבחרה שישייה במחזור זה.</p>
+              <p className="text-white/70">לא נבחרה שישייה במחזור זה.</p>
             )
           ) : (
-            <p className="text-muted">התחברו כדי לבחור שישייה.</p>
+            <p className="text-white/70">התחברו כדי לבחור שישייה.</p>
           )}
         </div>
       </section>
