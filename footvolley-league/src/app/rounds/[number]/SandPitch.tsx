@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
 import { Flag } from "@/components/Flag";
+import { PlayerAvatar } from "@/components/PlayerAvatar";
 import type { Player, Team } from "@/lib/types";
 import { saveSquad } from "../actions";
 
@@ -37,10 +38,6 @@ function slotPositions(n: number): { x: number; y: number }[] {
   return [...half(top, true), ...half(n - top, false)];
 }
 
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/);
-  return (parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "");
-}
 
 export function SandPitch({
   roundId,
@@ -162,7 +159,7 @@ export function SandPitch({
                     : "border-2 border-dashed border-brand-dark/50 bg-white/60 text-3xl text-brand-dark/70 hover:bg-white/80"
                 } ${readOnly ? "cursor-default" : "active:scale-95"}`}
               >
-                {p ? initials(p.name) : "+"}
+                {p ? <PlayerAvatar player={p} className="h-full w-full text-lg" /> : "+"}
                 {p && (
                   <span className="absolute -bottom-1 -left-1 rounded-sm ring-2 ring-white">
                     <Flag code={p.nationality} className="h-3.5 w-5" />
@@ -381,8 +378,9 @@ function PlayerPicker({
                   onClick={() => onPick(p.id)}
                   className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-right hover:bg-accent-soft disabled:opacity-45 disabled:hover:bg-transparent"
                 >
-                  <Flag code={p.nationality} />
+                  <PlayerAvatar player={p} className="h-10 w-10 text-sm" />
                   <span className="flex-1 font-medium">{p.name}</span>
+                  <Flag code={p.nationality} />
                   {inSquad && <span className="text-xs text-muted">בהרכב</span>}
                   {blocked && <span className="text-xs text-amber-700">מכסה מלאה</span>}
                 </button>

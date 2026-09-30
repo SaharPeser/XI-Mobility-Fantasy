@@ -155,8 +155,59 @@ export async function updatePlayer(fd: FormData) {
   done(fd, missingPlayerScoring(error));
 }
 
+// ---------- תמונות שחקנים ----------
+
+const PHOTO_BUCKET = "player-photos";
+const PHOTO_MAX_BYTES = 1024 * 1024;
+
+/** מוחק מהאחסון את כל התמונות של השחקן חוץ מ-keep */
+async function cleanPlayerPhotos(supabase: Awaited<ReturnType<typeof admin>>, playerId: string, keep?: string) {
+  const { data } = await supabase.storage.from(PHOTO_BUCKET).list(playerId);
+  const old = (data ?? []).map((f) => `${playerId}/${f.name}`).filter((p) => p !== keep);
+  if (old.length) await supabase.storage.from(PHOTO_BUCKET).remove(old);
+}
+
+/** מעלה תמונה חתוכה של שחקן (נקרא מהדפדפן אחרי החיתוך) */
+export async function uploadPlayerPhoto(fd: FormData): Promise<{ ok?: boolean; error?: string; url?: string }> {
+  const supabase = await admin();
+  const playerId = str(fd, "player_id");
+  const file = fd.get("photo");
+  if (!playerId || !(file instanceof File)) return { error: "לא נבחרה תמונה" };
+  if (!file.type.startsWith("image/")) return { error: "הקובץ חייב להיות תמונה" };
+  if (file.size > PHOTO_MAX_BYTES) return { error: "התמונה גדולה מדי (עד 1MB)" };
+
+  const ext = file.type === "image/webp" ? "webp" : file.type === "image/png" ? "png" : "jpg";
+  const path = `${playerId}/${Date.now()}.${ext}`;
+  const { error: upError } = await supabase.storage
+    .from(PHOTO_BUCKET)
+    .upload(path, file, { contentType: file.type, upsert: true, cacheControl: "31536000" });
+  if (upError) {
+    return {
+      error: /bucket/i.test(upError.message) ? "יש להריץ ב-Supabase את קובץ ה-SQL של תמונות השחקנים" : upError.message,
+    };
+  }
+
+  const url = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
+  const { error } = await supabase.from("players").update({ photo_url: url }).eq("id", playerId);
+  if (error) return { error: error.message.includes("photo_url") ? "יש להריץ ב-Supabase את קובץ ה-SQL של תמונות השחקנים" : error.message };
+
+  await cleanPlayerPhotos(supabase, playerId, path);
+  revalidatePath("/", "layout");
+  return { ok: true, url };
+}
+
+export async function removePlayerPhoto(playerId: string): Promise<{ ok?: boolean; error?: string }> {
+  const supabase = await admin();
+  const { error } = await supabase.from("players").update({ photo_url: null }).eq("id", playerId);
+  if (error) return { error: error.message };
+  await cleanPlayerPhotos(supabase, playerId);
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
 export async function deletePlayer(fd: FormData) {
   const supabase = await admin();
+  await cleanPlayerPhotos(supabase, str(fd, "id"));
   const { error } = await supabase.from("players").delete().eq("id", str(fd, "id"));
   done(fd, error);
 }

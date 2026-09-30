@@ -41,6 +41,11 @@ Use these as Tailwind classes (`bg-brand`, `text-accent`, `border-border`, ...).
 - Captain: gold gradient **C** badge (`from-yellow-200 via-amber-400 to-amber-600`).
 - Flags: `<Flag code="BR|IL" />` is an inline SVG, because Windows does not render flag emoji.
 
+## Player photos
+- Always render a player through `<PlayerAvatar player={p} className="h-10 w-10 text-sm" />` (`src/components/PlayerAvatar.tsx`). It shows the photo in a circle, or the initials on `bg-brand-dark` when there is no photo.
+- Used on the sand court slots, in the player picker, on `/players`, and in admin.
+- Upload and crop: `src/app/admin/teams/PlayerPhotoEditor.tsx`. The admin drags and zooms the image inside a circular mask, the browser crops it to a 400×400 WebP, and `uploadPlayerPhoto` saves it to Storage.
+
 ## Rounds deck (`/rounds`)
 `src/app/rounds/RoundDeck.tsx`, a client component. The rounds are a stack of cards in the hero style (`bg-brand-dark` + `.brand-stripes` + "בחסות" logo line), round 1 on top.
 - Drag right = next round, drag left = previous (RTL). There are also arrow buttons, dots (turquoise = open, gray = locked) and the keyboard arrows. "למחזור הפתוח" jumps to the first open round.

@@ -49,6 +49,7 @@ export type Player = {
   name: string;
   is_active: boolean;
   nationality?: Nationality;
+  photo_url?: string | null;
 };
 
 export type Round = {

@@ -5,6 +5,7 @@ import { TeamBadge } from "@/components/TeamBadge";
 import { getActiveSeason } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import type { Nationality, Player, Team } from "@/lib/types";
+import { PlayerPhotoEditor } from "./PlayerPhotoEditor";
 import { addPlayers, createTeam, deletePlayer, deleteTeam, updatePlayer, updateTeam } from "../actions";
 
 const R = <input type="hidden" name="return_to" value="/admin/teams" />;
@@ -76,6 +77,7 @@ export default async function AdminTeamsPage() {
                   <form key={p.id} action={updatePlayer} className="flex flex-wrap items-center gap-2 border-b border-border pb-2 last:border-0">
                     {R}
                     <input type="hidden" name="id" value={p.id} />
+                    <PlayerPhotoEditor player={p} />
                     <Flag code={p.nationality} />
                     <input className="input min-w-[9rem] flex-1 py-1" name="name" defaultValue={p.name} required />
                     <NationalitySelect value={p.nationality} />

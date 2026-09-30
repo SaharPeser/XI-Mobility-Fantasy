@@ -48,6 +48,7 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
     name: p.name,
     is_active: p.is_active,
     nationality: p.nationality ?? "IL",
+    photo_url: p.photo_url ?? null,
   }));
   const playerPoints = new Map((pointsData ?? []).map((p) => [p.player_id, Number(p.points)]));
 

@@ -8,6 +8,12 @@ All schema lives in `supabase/migrations/`, applied in file-name order. **Never 
 | `20260925000000_sponsor_prizes.sql` | `seasons.prize_1..3` (XIMOBILITY prize text) |
 | `20260927000000_player_scoring.sql` | Personal player scoring: `seasons.ppts_*`, `crushing_margin`, `quad_multiply_negative`, `rounds.mvp_player_id`, `match_player_stats`, views `player_match_points` and `player_round_scores`. `get_leaderboard` now reads quad points from the view |
 | `20260928000000_squad_nationality.sql` | `players.nationality` (`IL`/`BR`), `seasons.squad_size` and `max_brazilians`, RPC `save_squad` |
+| `20260930000000_player_photos.sql` | `players.photo_url`, public Storage bucket `player-photos` (1MB, images only) with admin-only write policies on `storage.objects` |
+
+## Storage
+| Bucket | Read | Write | Content |
+|---|---|---|---|
+| `player-photos` | public | admin only (`is_admin()`) | `<player_id>/<timestamp>.webp`, a 400×400 square cropped in the browser (shown as a circle). Older files of the same player are removed on upload, and all of them when the player is deleted |
 
 ## Tables
 | Table | Purpose | Key columns |
@@ -15,7 +21,7 @@ All schema lives in `supabase/migrations/`, applied in file-name order. **Never 
 | `profiles` | One row per auth user | `display_name`, `is_admin` |
 | `seasons` | A season and its scoring settings | `is_active` (max one), `table_deadline`, `pts_winner`, `pts_exact`, `pts_table_position`, `quad_multiplier`, `captain_multiplier`, `prize_1..3`, `ppts_*` (personal scoring, penalties stored positive), `crushing_margin`, `quad_multiply_negative`, `squad_size`, `max_brazilians` |
 | `teams` | Teams in a season | `name` (unique per season), `logo_url`, `final_position` (set by admin at season end) |
-| `players` | Players in a team | `is_active` (inactive players cannot be picked), `nationality` (`IL` / `BR`, default `IL`) |
+| `players` | Players in a team | `is_active` (inactive players cannot be picked), `nationality` (`IL` / `BR`, default `IL`), `photo_url` (public Storage URL or null) |
 | `rounds` | A round with its lock time | `number` (unique per season), `stage` (`regular` / `playoff` / `final_four` / `relegation`), `deadline`, `mvp_player_id` (round MVP) |
 | `matches` | A match in a round | `home_team_id`, `away_team_id`, `starts_at`, `sort_order`, `home_score`, `away_score` (null until played) |
 | `match_player_stats` | A player's stats in one match (row = played) | PK (`match_id`, `player_id`), `blocks`, `great_defense`, `unforced_errors`, `scored_tier` (0/1/2), `is_mvp` (max one per match), `yellow_card`, `red_card`. A trigger checks the player belongs to one of the match teams |

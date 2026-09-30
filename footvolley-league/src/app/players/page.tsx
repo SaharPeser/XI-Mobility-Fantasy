@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NoSeason } from "@/components/NoSeason";
+import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { TeamBadge } from "@/components/TeamBadge";
 import { getActiveSeason } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
@@ -82,15 +83,20 @@ export default async function PlayersPage({ searchParams }: PageProps<"/players"
                 <tr key={r.player.id} className="border-b border-border last:border-0">
                   <td className="p-3 font-bold tabular-nums">{i + 1}</td>
                   <td className="p-3">
-                    <div className="font-medium">
-                      {r.player.name}
-                      {mvpIds.has(r.player.id) && (
-                        <span className="mr-1" title="מצטיין המחזור">
-                          🏅
-                        </span>
-                      )}
+                    <div className="flex items-center gap-2.5">
+                      <PlayerAvatar player={r.player} className="h-9 w-9 text-xs" />
+                      <div className="min-w-0">
+                        <div className="font-medium">
+                          {r.player.name}
+                          {mvpIds.has(r.player.id) && (
+                            <span className="mr-1" title="מצטיין המחזור">
+                              🏅
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted sm:hidden">{teams.get(r.player.team_id)?.name}</div>
+                      </div>
                     </div>
-                    <div className="text-xs text-muted sm:hidden">{teams.get(r.player.team_id)?.name}</div>
                   </td>
                   <td className="hidden p-3 sm:table-cell">
                     <TeamBadge team={teams.get(r.player.team_id)} />

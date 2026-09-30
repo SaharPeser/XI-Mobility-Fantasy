@@ -23,6 +23,12 @@ const ok = (cond, msg) => {
 await db.exec(`
   create role anon nologin; create role authenticated nologin;
   create schema auth;
+  create schema storage;
+  create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
+  create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
+  alter table storage.objects enable row level security;
+  grant usage on schema storage to anon, authenticated;
+  grant all on storage.objects to anon, authenticated;
   create table auth.users (id uuid primary key, email text, raw_user_meta_data jsonb);
   create function auth.uid() returns uuid language sql stable as
     $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
@@ -199,6 +205,16 @@ await as(U2, `select save_squad($1, $2, $3)`, [round2, [...br, ...il.slice(0, 3)
 ok((await as(U2, `select 1 from quad_picks where user_id = $1 and round_id = $2`, [U2, round2])).rows.length === 7, "Brazilian limit follows season setting");
 await as(U1, `update rounds set deadline = now() - interval '1 minute' where id = $1`, [round2]);
 ok(!!(await fails(U2, `select save_squad($1, $2, $3)`, [round2, [...br, ...il.slice(0, 3)], br[0]])), "locked squad cannot be edited");
+
+// ---------- תמונות שחקנים (20260930000000_player_photos) ----------
+ok((await db.query(`select public from storage.buckets where id = 'player-photos'`)).rows[0]?.public === true, "public player-photos bucket");
+await as(U1, `insert into storage.objects (bucket_id, name) values ('player-photos', 'p1/a.webp')`);
+ok(!!(await fails(U2, `insert into storage.objects (bucket_id, name) values ('player-photos', 'p1/b.webp')`)), "non-admin cannot upload photos");
+ok((await as(null, `select * from storage.objects where bucket_id = 'player-photos'`)).rows.length === 1, "anyone can read photos");
+ok(!!(await fails(U2, `delete from storage.objects where bucket_id = 'player-photos'`)), "non-admin cannot delete photos");
+await as(U1, `update players set photo_url = 'https://x/p.webp' where id = $1`, [q[0]]);
+ok((await as(null, `select photo_url from players where id = $1`, [q[0]])).rows[0].photo_url === "https://x/p.webp", "admin sets photo_url");
+ok(!!(await fails(U2, `update players set photo_url = null where id = $1`, [q[0]])), "non-admin cannot change photo_url");
 
 console.log(failures ? `\n${failures} FAILED` : "\nALL PASSED");
 process.exit(failures ? 1 : 0);
