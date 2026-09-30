@@ -1,23 +1,24 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/data";
-import { logout } from "@/app/login/actions";
+import { MainMenu, type MenuItem } from "./MainMenu";
 import { NavLinks } from "./NavLinks";
 import { SponsorLogo } from "./Sponsor";
 
-const LINKS = [
-  { href: "/rounds", label: "מחזורים" },
-  { href: "/predict-table", label: "ניחוש טבלה" },
-  { href: "/standings", label: "טבלת הליגה" },
-  { href: "/leaderboard", label: "דירוג" },
-  { href: "/players", label: "שחקנים" },
-  { href: "/leagues", label: "ליגות חברים" },
-  { href: "/rules", label: "חוקי הניקוד" },
+const LINKS: MenuItem[] = [
+  { href: "/", label: "ראשי", icon: "🏠" },
+  { href: "/rounds", label: "מחזורים", icon: "🏐" },
+  { href: "/predict-table", label: "ניחוש טבלה", icon: "🔮" },
+  { href: "/standings", label: "טבלת הליגה", icon: "📊" },
+  { href: "/leaderboard", label: "דירוג", icon: "🏆" },
+  { href: "/players", label: "שחקנים", icon: "⭐" },
+  { href: "/leagues", label: "ליגות חברים", icon: "👥" },
+  { href: "/rules", label: "חוקי הניקוד", icon: "📖" },
 ];
 
 export async function Nav() {
   const user = await getSessionUser();
   return (
-    <header className="sticky top-0 z-10 bg-brand-dark text-white shadow-md">
+    <header className="sticky top-0 z-40 bg-brand-dark text-white shadow-md">
       <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
         <Link href="/" className="flex min-w-0 items-center gap-3" aria-label="דף הבית">
           <SponsorLogo className="h-5 sm:h-6" />
@@ -25,27 +26,10 @@ export async function Nav() {
             ליגת הפוצ&apos;יוולי
           </span>
         </Link>
-        <div className="flex items-center gap-2 text-sm">
-          {user ? (
-            <>
-              {user.isAdmin && (
-                <Link href="/admin" className="rounded-lg bg-brand px-2 py-1 font-bold text-brand-dark">
-                  ניהול
-                </Link>
-              )}
-              <span className="hidden text-white/70 sm:inline">{user.displayName}</span>
-              <form action={logout}>
-                <button className="text-white/70 hover:text-white">יציאה</button>
-              </form>
-            </>
-          ) : (
-            <Link href="/login" className="btn-brand py-1.5">
-              כניסה
-            </Link>
-          )}
-        </div>
+        <MainMenu items={LINKS} user={user ? { displayName: user.displayName, isAdmin: user.isAdmin } : null} />
       </div>
-      <NavLinks items={LINKS} className="mx-auto max-w-3xl px-2 pb-2" />
+      {/* שורת הקיצורים הנגללת (בלי "ראשי", שאליו מגיעים מהלוגו) */}
+      <NavLinks items={LINKS.filter((l) => l.href !== "/")} className="mx-auto max-w-3xl px-2 pb-2" />
     </header>
   );
 }
