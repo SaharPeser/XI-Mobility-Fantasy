@@ -44,7 +44,9 @@ Use these as Tailwind classes (`bg-brand`, `text-accent`, `border-border`, ...).
 ## Player photos
 - Always render a player through `<PlayerAvatar player={p} className="h-10 w-10 text-sm" />` (`src/components/PlayerAvatar.tsx`). It shows the photo in a circle, or the initials on `bg-brand-dark` when there is no photo.
 - Used on the sand court slots, in the player picker, on `/players`, and in admin.
-- Upload and crop: `src/app/admin/teams/PlayerPhotoEditor.tsx`. The admin drags and zooms the image inside a circular mask, the browser crops it to a 400×400 WebP, and `uploadPlayerPhoto` saves it to Storage.
+- Upload and crop: `src/app/admin/ImageEditor.tsx` (`PlayerPhotoEditor`, `TeamLogoEditor`), one shared crop dialog. The admin drags and zooms inside a circular mask, the browser crops to a 400×400 WebP, and `uploadPlayerPhoto` / `uploadTeamLogo` save it to Storage (generic `uploadImage(kind)` in `admin/actions.ts`).
+- Players always fill the circle. Team logos can shrink until the whole logo (its diagonal) fits the circle, on a white background.
+- Team logos render through `TeamBadge` (standings, match cards, players table). Teams are no longer given a logo URL by hand.
 
 ## Rounds deck (`/rounds`)
 `src/app/rounds/RoundDeck.tsx`, a client component. The rounds are a stack of cards in the hero style (`bg-brand-dark` + `.brand-stripes` + "בחסות" logo line), round 1 on top.

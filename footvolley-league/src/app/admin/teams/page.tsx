@@ -1,11 +1,10 @@
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { Flag, NATIONALITY_LABEL } from "@/components/Flag";
 import { NoSeason } from "@/components/NoSeason";
-import { TeamBadge } from "@/components/TeamBadge";
 import { getActiveSeason } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import type { Nationality, Player, Team } from "@/lib/types";
-import { PlayerPhotoEditor } from "./PlayerPhotoEditor";
+import { PlayerPhotoEditor, TeamLogoEditor } from "../ImageEditor";
 import { addPlayers, createTeam, deletePlayer, deleteTeam, updatePlayer, updateTeam } from "../actions";
 
 const R = <input type="hidden" name="return_to" value="/admin/teams" />;
@@ -27,18 +26,15 @@ export default async function AdminTeamsPage() {
         קבוצות ושחקנים <span className="text-base font-normal text-muted">({teams.length} קבוצות)</span>
       </h1>
 
-      <form action={createTeam} className="card grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+      <form action={createTeam} className="card grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
         {R}
         <input type="hidden" name="season_id" value={season.id} />
         <label>
           <span className="label">שם קבוצה</span>
           <input className="input" name="name" required />
         </label>
-        <label>
-          <span className="label">קישור ללוגו (לא חובה)</span>
-          <input className="input" name="logo_url" dir="ltr" placeholder="https://..." />
-        </label>
         <button className="btn">הוספת קבוצה</button>
+        <p className="text-xs text-muted sm:col-span-2">אחרי שהקבוצה נוצרת, לוחצים על העיגול עם 📷 כדי להעלות סמל.</p>
       </form>
 
       {teams.map((team) => {
@@ -46,7 +42,10 @@ export default async function AdminTeamsPage() {
         return (
           <details key={team.id} className="card">
             <summary className="flex cursor-pointer items-center justify-between">
-              <TeamBadge team={team} className="font-bold" />
+              <span className="flex min-w-0 items-center gap-3">
+                <TeamLogoEditor team={team} />
+                <span className="truncate font-bold">{team.name}</span>
+              </span>
               <span className="text-sm text-muted">
                 {teamPlayers.length} שחקנים
                 {teamPlayers.some((p) => p.nationality === "BR") &&
@@ -55,16 +54,12 @@ export default async function AdminTeamsPage() {
             </summary>
 
             <div className="mt-4 space-y-4">
-              <form action={updateTeam} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end">
+              <form action={updateTeam} className="grid gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-end">
                 {R}
                 <input type="hidden" name="id" value={team.id} />
                 <label>
                   <span className="label">שם</span>
                   <input className="input" name="name" defaultValue={team.name} required />
-                </label>
-                <label>
-                  <span className="label">לוגו</span>
-                  <input className="input" name="logo_url" dir="ltr" defaultValue={team.logo_url ?? ""} />
                 </label>
                 <button className="btn-secondary">עדכון</button>
                 <ConfirmButton formAction={deleteTeam} className="btn-danger" message="למחוק את הקבוצה? כל המשחקים, השחקנים והניחושים הקשורים אליה יימחקו.">

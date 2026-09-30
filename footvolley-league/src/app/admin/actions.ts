@@ -108,7 +108,7 @@ export async function createTeam(fd: FormData) {
   if (!name) return done(fd, "יש להזין שם קבוצה");
   const { error } = await supabase
     .from("teams")
-    .insert({ season_id: str(fd, "season_id"), name, logo_url: str(fd, "logo_url") || null });
+    .insert({ season_id: str(fd, "season_id"), name });
   done(fd, error?.code === "23505" ? "כבר קיימת קבוצה בשם הזה" : error);
 }
 
@@ -116,13 +116,17 @@ export async function updateTeam(fd: FormData) {
   const supabase = await admin();
   const { error } = await supabase
     .from("teams")
-    .update({ name: str(fd, "name"), logo_url: str(fd, "logo_url") || null })
+    .update({ name: str(fd, "name") })
     .eq("id", str(fd, "id"));
   done(fd, error);
 }
 
 export async function deleteTeam(fd: FormData) {
   const supabase = await admin();
+  const teamId = str(fd, "id");
+  // מחיקת התמונות של הקבוצה ושל השחקנים שלה מהאחסון
+  const { data: teamPlayers } = await supabase.from("players").select("id").eq("team_id", teamId);
+  await Promise.all([cleanImages(supabase, "team", teamId), ...(teamPlayers ?? []).map((p) => cleanImages(supabase, "player", p.id))]);
   const { error } = await supabase.from("teams").delete().eq("id", str(fd, "id"));
   done(fd, error);
 }
@@ -155,59 +159,85 @@ export async function updatePlayer(fd: FormData) {
   done(fd, missingPlayerScoring(error));
 }
 
-// ---------- תמונות שחקנים ----------
+// ---------- תמונות: שחקנים וסמלי קבוצות ----------
 
-const PHOTO_BUCKET = "player-photos";
-const PHOTO_MAX_BYTES = 1024 * 1024;
+type ImageResult = { ok?: boolean; error?: string; url?: string };
+type Supa = Awaited<ReturnType<typeof admin>>;
 
-/** מוחק מהאחסון את כל התמונות של השחקן חוץ מ-keep */
-async function cleanPlayerPhotos(supabase: Awaited<ReturnType<typeof admin>>, playerId: string, keep?: string) {
-  const { data } = await supabase.storage.from(PHOTO_BUCKET).list(playerId);
-  const old = (data ?? []).map((f) => `${playerId}/${f.name}`).filter((p) => p !== keep);
-  if (old.length) await supabase.storage.from(PHOTO_BUCKET).remove(old);
+const IMAGE_MAX_BYTES = 1024 * 1024;
+
+/** לכל סוג תמונה: הדלי באחסון, הטבלה והעמודה שבה נשמרת הכתובת */
+const IMAGE_KINDS = {
+  player: { bucket: "player-photos", table: "players", column: "photo_url", sql: "תמונות השחקנים" },
+  team: { bucket: "team-logos", table: "teams", column: "logo_url", sql: "סמלי הקבוצות" },
+} as const;
+type ImageKind = keyof typeof IMAGE_KINDS;
+
+/** מוחק מהאחסון את כל התמונות בתיקייה של הפריט, חוץ מ-keep */
+async function cleanImages(supabase: Supa, kind: ImageKind, id: string, keep?: string) {
+  const { bucket } = IMAGE_KINDS[kind];
+  const { data } = await supabase.storage.from(bucket).list(id);
+  const old = (data ?? []).map((f) => `${id}/${f.name}`).filter((p) => p !== keep);
+  if (old.length) await supabase.storage.from(bucket).remove(old);
 }
 
-/** מעלה תמונה חתוכה של שחקן (נקרא מהדפדפן אחרי החיתוך) */
-export async function uploadPlayerPhoto(fd: FormData): Promise<{ ok?: boolean; error?: string; url?: string }> {
+async function uploadImage(kind: ImageKind, fd: FormData): Promise<ImageResult> {
   const supabase = await admin();
-  const playerId = str(fd, "player_id");
-  const file = fd.get("photo");
-  if (!playerId || !(file instanceof File)) return { error: "לא נבחרה תמונה" };
+  const { bucket, table, column, sql } = IMAGE_KINDS[kind];
+  const missingSql = `יש להריץ ב-Supabase את קובץ ה-SQL של ${sql}`;
+  const id = str(fd, "id");
+  const file = fd.get("image");
+  if (!id || !(file instanceof File)) return { error: "לא נבחרה תמונה" };
   if (!file.type.startsWith("image/")) return { error: "הקובץ חייב להיות תמונה" };
-  if (file.size > PHOTO_MAX_BYTES) return { error: "התמונה גדולה מדי (עד 1MB)" };
+  if (file.size > IMAGE_MAX_BYTES) return { error: "התמונה גדולה מדי (עד 1MB)" };
 
   const ext = file.type === "image/webp" ? "webp" : file.type === "image/png" ? "png" : "jpg";
-  const path = `${playerId}/${Date.now()}.${ext}`;
+  const path = `${id}/${Date.now()}.${ext}`;
   const { error: upError } = await supabase.storage
-    .from(PHOTO_BUCKET)
+    .from(bucket)
     .upload(path, file, { contentType: file.type, upsert: true, cacheControl: "31536000" });
-  if (upError) {
-    return {
-      error: /bucket/i.test(upError.message) ? "יש להריץ ב-Supabase את קובץ ה-SQL של תמונות השחקנים" : upError.message,
-    };
-  }
+  if (upError) return { error: /bucket/i.test(upError.message) ? missingSql : upError.message };
 
-  const url = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
-  const { error } = await supabase.from("players").update({ photo_url: url }).eq("id", playerId);
-  if (error) return { error: error.message.includes("photo_url") ? "יש להריץ ב-Supabase את קובץ ה-SQL של תמונות השחקנים" : error.message };
+  const url = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+  const { error } = await supabase.from(table).update({ [column]: url }).eq("id", id);
+  if (error) return { error: error.message.includes(column) ? missingSql : error.message };
 
-  await cleanPlayerPhotos(supabase, playerId, path);
+  await cleanImages(supabase, kind, id, path);
   revalidatePath("/", "layout");
   return { ok: true, url };
 }
 
-export async function removePlayerPhoto(playerId: string): Promise<{ ok?: boolean; error?: string }> {
+async function removeImage(kind: ImageKind, id: string): Promise<ImageResult> {
   const supabase = await admin();
-  const { error } = await supabase.from("players").update({ photo_url: null }).eq("id", playerId);
+  const { table, column } = IMAGE_KINDS[kind];
+  const { error } = await supabase.from(table).update({ [column]: null }).eq("id", id);
   if (error) return { error: error.message };
-  await cleanPlayerPhotos(supabase, playerId);
+  await cleanImages(supabase, kind, id);
   revalidatePath("/", "layout");
   return { ok: true };
 }
 
+/** מעלה תמונה חתוכה של שחקן (נקרא מהדפדפן אחרי החיתוך) */
+export async function uploadPlayerPhoto(fd: FormData) {
+  return uploadImage("player", fd);
+}
+
+export async function removePlayerPhoto(playerId: string) {
+  return removeImage("player", playerId);
+}
+
+/** מעלה סמל חתוך של קבוצה */
+export async function uploadTeamLogo(fd: FormData) {
+  return uploadImage("team", fd);
+}
+
+export async function removeTeamLogo(teamId: string) {
+  return removeImage("team", teamId);
+}
+
 export async function deletePlayer(fd: FormData) {
   const supabase = await admin();
-  await cleanPlayerPhotos(supabase, str(fd, "id"));
+  await cleanImages(supabase, "player", str(fd, "id"));
   const { error } = await supabase.from("players").delete().eq("id", str(fd, "id"));
   done(fd, error);
 }

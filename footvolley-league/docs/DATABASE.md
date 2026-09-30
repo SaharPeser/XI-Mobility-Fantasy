@@ -9,11 +9,13 @@ All schema lives in `supabase/migrations/`, applied in file-name order. **Never 
 | `20260927000000_player_scoring.sql` | Personal player scoring: `seasons.ppts_*`, `crushing_margin`, `quad_multiply_negative`, `rounds.mvp_player_id`, `match_player_stats`, views `player_match_points` and `player_round_scores`. `get_leaderboard` now reads quad points from the view |
 | `20260928000000_squad_nationality.sql` | `players.nationality` (`IL`/`BR`), `seasons.squad_size` and `max_brazilians`, RPC `save_squad` |
 | `20260930000000_player_photos.sql` | `players.photo_url`, public Storage bucket `player-photos` (1MB, images only) with admin-only write policies on `storage.objects` |
+| `20261001000000_team_logos.sql` | Public Storage bucket `team-logos` with admin-only write. The URL goes into the existing `teams.logo_url` |
 
 ## Storage
 | Bucket | Read | Write | Content |
 |---|---|---|---|
 | `player-photos` | public | admin only (`is_admin()`) | `<player_id>/<timestamp>.webp`, a 400×400 square cropped in the browser (shown as a circle). Older files of the same player are removed on upload, and all of them when the player is deleted |
+| `team-logos` | public | admin only | `<team_id>/<timestamp>.webp`, 400×400 on a white background. Removed with the team (together with its players' photos) |
 
 ## Tables
 | Table | Purpose | Key columns |

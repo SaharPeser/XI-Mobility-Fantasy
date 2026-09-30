@@ -216,5 +216,11 @@ await as(U1, `update players set photo_url = 'https://x/p.webp' where id = $1`, 
 ok((await as(null, `select photo_url from players where id = $1`, [q[0]])).rows[0].photo_url === "https://x/p.webp", "admin sets photo_url");
 ok(!!(await fails(U2, `update players set photo_url = null where id = $1`, [q[0]])), "non-admin cannot change photo_url");
 
+// ---------- סמלי קבוצות (20261001000000_team_logos) ----------
+ok((await db.query(`select public from storage.buckets where id = 'team-logos'`)).rows[0]?.public === true, "public team-logos bucket");
+await as(U1, `insert into storage.objects (bucket_id, name) values ('team-logos', 't1/a.webp')`);
+ok(!!(await fails(U2, `insert into storage.objects (bucket_id, name) values ('team-logos', 't1/b.webp')`)), "non-admin cannot upload logos");
+ok((await as(null, `select * from storage.objects where bucket_id = 'team-logos'`)).rows.length === 1, "anyone can read logos");
+
 console.log(failures ? `\n${failures} FAILED` : "\nALL PASSED");
 process.exit(failures ? 1 : 0);
