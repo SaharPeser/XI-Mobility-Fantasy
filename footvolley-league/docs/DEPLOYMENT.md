@@ -7,6 +7,19 @@
 | Vercel | team `footvolley`, project `footvolley` | Root Directory **`footvolley-league`**, Framework Next.js, auto-deploy on push to `main` |
 | Domain | https://ximobilityfantasy.vercel.app | The old `footvolley.vercel.app` redirects here |
 | Supabase | ref `akgcwifctvrnnhjopqkg` | Frankfurt. SQL Editor: https://supabase.com/dashboard/project/akgcwifctvrnnhjopqkg/sql/new |
+| Supabase Storage | buckets `player-photos`, `team-logos` | Public read, admin-only write (created by migrations) |
+
+## Migrations applied in production
+Keep this list current. A migration is "applied" only after the owner ran it in the SQL Editor and it was verified (see the `db-migration` skill).
+
+| Migration | Applied |
+|---|---|
+| `20260924000000_init.sql` | ✅ 2026-09-24 |
+| `20260925000000_sponsor_prizes.sql` | ✅ 2026-09-25 |
+| `20260927000000_player_scoring.sql` | ✅ 2026-09-27 |
+| `20260928000000_squad_nationality.sql` | ✅ 2026-09-28 |
+| `20260930000000_player_photos.sql` | ✅ 2026-09-30 |
+| `20261001000000_team_logos.sql` | ✅ 2026-10-01 |
 
 ## Environment variables
 | Name | Value | Where |
@@ -38,6 +51,12 @@ npm run dev
 ```
 Port 3000 is often taken on the owner's machine by another app. Use `npx next dev -p 3002` and set `NEXT_PUBLIC_SITE_URL` to match. Local dev uses the **production** Supabase project, so test data you create is real. Clean it up afterwards.
 
+**Previewing changes for the owner** (they review every visible change before it is committed). The full procedure is in the `local-preview` skill:
+- Desktop: open `http://localhost:3002/...` in their browser (PowerShell `Start-Process`). They are signed in there as admin.
+- Phone on the same Wi-Fi: `http://10.20.0.16:3002/...` (the Wi-Fi IP at the time of writing; check with `Get-NetIPAddress` and ignore the VMware adapters).
+- Chrome device mode: F12, then Ctrl+Shift+M.
+- `.env.local` and the dev server live in `Desktop\footvolley-league\footvolley-league`. The Claude preview pane once started a server from an old scratch folder, so start it with Bash from the right folder instead.
+
 ## Troubleshooting
 | Symptom | Cause |
 |---|---|
@@ -46,3 +65,7 @@ Port 3000 is often taken on the owner's machine by another app. Use `npx next de
 | "יש להריץ ב-Supabase את קובץ ה-SQL..." in admin | A migration has not been run yet |
 | `PGRST205 Could not find the table` | Migration not run in this Supabase project |
 | Email confirmation link opens localhost | `NEXT_PUBLIC_SITE_URL` or Supabase Site URL is wrong |
+| Vercel refuses to save a `NEXT_PUBLIC_*` variable | It is set as **Secret**. Delete it and re-create it as **Config** |
+| Image upload says "Bucket not found" / the SQL message | The photos/logos migration has not been run |
+| `tsc` errors about a deleted route (e.g. `dev-preview`) | Stale `.next/types`: delete `.next/types` and `.next/dev/types`, then `npx next typegen` |
+| `git push` blocked by the Claude permission classifier | The owner approves pushes in chat. `.claude/settings.local.json` (git-ignored) allows `git push` |

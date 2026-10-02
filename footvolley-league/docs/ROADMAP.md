@@ -18,9 +18,16 @@ Still needed:
 - [ ] "Who wins the Final Four" and "who is relegated" predictions before the playoffs (new tables + RPC, see the `db-migration` skill).
 
 ## More scoring ("בעתיד נוסיף עוד דברים לניקוד")
+- [x] Personal player scoring per match (2026-09-27), with a round MVP chosen by the admin.
 - [ ] Bonus for a perfect round (all winners correct).
-- [ ] Round MVP prediction.
+- [ ] Users predict the round MVP.
 - [ ] Use the `add-scoring-rule` skill for each one.
+
+## Players and teams
+- [x] Nationality (IL/BR) and a Brazilian limit in the squad (2026-09-28).
+- [x] Player photos and team logos, uploaded and cropped to a circle (2026-09-30, 2026-10-01).
+- [ ] Show photos in the admin match-stats form and on the leaderboard.
+- [ ] Team page: roster with photos and season stats.
 
 ## Engagement
 - [ ] Reminder before a round locks (email via Supabase, or WhatsApp share text).
@@ -36,3 +43,6 @@ Still needed:
 ## Admin quality of life
 - [ ] Bulk import of matches for a round (paste text).
 - [ ] Choose which season to manage when there are several (today admin pages use the active season).
+- [ ] Users screen in admin (list, delete). Today users are deleted in Supabase → Authentication → Users, and that also deletes friends leagues they own.
+
+Everything that is already built is listed by date in `docs/CHANGELOG.md`.

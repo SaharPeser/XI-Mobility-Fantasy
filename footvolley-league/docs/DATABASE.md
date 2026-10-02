@@ -30,7 +30,7 @@ All schema lives in `supabase/migrations/`, applied in file-name order. **Never 
 | `player_round_points` | **Manual adjustment** to a player's round score (optional, can be negative) | PK (`player_id`, `round_id`), `points` numeric |
 | `match_predictions` | A user's score prediction | PK (`user_id`, `match_id`), `home_score`, `away_score` |
 | `table_predictions` | A user's predicted final table | PK (`user_id`, `season_id`, `team_id`), unique `position` |
-| `quad_picks` | A user's 4 players for a round | PK (`user_id`, `round_id`, `player_id`), `is_captain` (max one per round) |
+| `quad_picks` | A user's round squad (6 players by default; the name is historical) | PK (`user_id`, `round_id`, `player_id`), `is_captain` (max one per round). Written only through `save_squad` |
 | `leagues` | Private friends league | `name`, `invite_code` (6 chars, unique), `owner_id` |
 | `league_members` | League membership | PK (`league_id`, `user_id`) |
 
