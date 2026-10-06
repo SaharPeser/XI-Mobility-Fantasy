@@ -2,6 +2,11 @@
 
 What was built, newest first. **Add an entry with every change** (same commit). Each entry lists what changed for users, any SQL the owner had to run, and the main files.
 
+## 2026-10-06 — Icons in the big menu
+- The big menu uses professional `lucide-react` line icons (house, volleyball, list, chart, trophy, player, group, book) instead of emoji, plus icons for close, row arrow, admin, log out and log in.
+- The owner tried icons across the whole site and chose to keep them **only in the big menu**; all other emoji stay as they were.
+- The page list moved to `src/lib/nav.ts` (`NAV_ITEMS`). New dependency: `lucide-react`.
+
 ## 2026-10-06 — Faster navigation + loading skeletons
 - Vercel functions moved from `iad1` (Washington) to `fra1` (Frankfurt), next to the Supabase DB (`vercel.json`). Measured from Israel: before ~1.0–1.4 s per page, after ~0.45–0.55 s (warm).
 - `getSessionUser` uses `auth.getClaims()` (local ES256 JWT verification) instead of `auth.getUser()` (a network call per page).

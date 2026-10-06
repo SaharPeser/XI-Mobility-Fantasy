@@ -1,19 +1,9 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/data";
-import { MainMenu, type MenuItem } from "./MainMenu";
+import { NAV_ITEMS } from "@/lib/nav";
+import { MainMenu } from "./MainMenu";
 import { NavLinks } from "./NavLinks";
 import { SponsorLogo } from "./Sponsor";
-
-const LINKS: MenuItem[] = [
-  { href: "/", label: "ראשי", icon: "🏠" },
-  { href: "/rounds", label: "מחזורים", icon: "🏐" },
-  { href: "/predict-table", label: "ניחוש טבלה", icon: "🔮" },
-  { href: "/standings", label: "טבלת הליגה", icon: "📊" },
-  { href: "/leaderboard", label: "דירוג", icon: "🏆" },
-  { href: "/players", label: "שחקנים", icon: "⭐" },
-  { href: "/leagues", label: "ליגות חברים", icon: "👥" },
-  { href: "/rules", label: "חוקי הניקוד", icon: "📖" },
-];
 
 export async function Nav() {
   const user = await getSessionUser();
@@ -26,10 +16,13 @@ export async function Nav() {
             ליגת הפוצ&apos;יוולי
           </span>
         </Link>
-        <MainMenu items={LINKS} user={user ? { displayName: user.displayName, isAdmin: user.isAdmin } : null} />
+        <MainMenu user={user ? { displayName: user.displayName, isAdmin: user.isAdmin } : null} />
       </div>
-      {/* שורת הקיצורים הנגללת (בלי "ראשי", שאליו מגיעים מהלוגו) */}
-      <NavLinks items={LINKS.filter((l) => l.href !== "/")} className="mx-auto max-w-3xl px-2 pb-2" />
+      {/* שורת הקיצורים הנגללת (בלי "ראשי", שאליו מגיעים מהלוגו). רק טקסט, כי האייקונים לא עוברים מרכיב שרת לרכיב לקוח */}
+      <NavLinks
+        items={NAV_ITEMS.filter((l) => l.href !== "/").map(({ href, label }) => ({ href, label }))}
+        className="mx-auto max-w-3xl px-2 pb-2"
+      />
     </header>
   );
 }

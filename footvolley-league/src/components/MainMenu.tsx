@@ -3,10 +3,10 @@
 import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ChevronLeft, LogIn, LogOut, Settings, X } from "lucide-react";
 import { logout } from "@/app/login/actions";
+import { NAV_ITEMS } from "@/lib/nav";
 import { SponsorLogo } from "./Sponsor";
-
-export type MenuItem = { href: string; label: string; icon: string };
 
 type MenuUser = { displayName: string; isAdmin: boolean } | null;
 
@@ -15,7 +15,8 @@ function isActive(pathname: string, href: string) {
 }
 
 /** כפתור התפריט בכותרת, והתפריט הגדול שנפתח מעל העמוד בסגנון הבאנר */
-export function MainMenu({ items, user }: { items: MenuItem[]; user: MenuUser }) {
+export function MainMenu({ user }: { user: MenuUser }) {
+  const items = NAV_ITEMS;
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -89,9 +90,9 @@ export function MainMenu({ items, user }: { items: MenuItem[]; user: MenuUser })
               type="button"
               onClick={() => setOpen(false)}
               aria-label="סגירת התפריט"
-              className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-xl transition hover:bg-white/20 active:scale-95"
+              className="grid h-10 w-10 place-items-center rounded-full bg-white/10 transition hover:bg-white/20 active:scale-95"
             >
-              ✕
+              <X className="h-5 w-5" aria-hidden />
             </button>
           </div>
 
@@ -105,6 +106,7 @@ export function MainMenu({ items, user }: { items: MenuItem[]; user: MenuUser })
           <ul className="mt-5 flex-1 space-y-1 overflow-y-auto px-3">
             {items.map((item, i) => {
               const active = isActive(pathname, item.href);
+              const Icon = item.icon;
               return (
                 <li
                   key={item.href}
@@ -120,12 +122,12 @@ export function MainMenu({ items, user }: { items: MenuItem[]; user: MenuUser })
                     }`}
                   >
                     <span
-                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-xl ${
-                        active ? "bg-brand-dark/15" : "bg-white/10"
+                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${
+                        active ? "bg-brand-dark/15" : "bg-white/10 text-brand"
                       }`}
                       aria-hidden
                     >
-                      {item.icon}
+                      <Icon className="h-5 w-5" strokeWidth={2.2} />
                     </span>
                     <span className="flex-1">{item.label}</span>
                     <PendingArrow active={active} />
@@ -140,20 +142,23 @@ export function MainMenu({ items, user }: { items: MenuItem[]; user: MenuUser })
               <div className="flex items-center gap-2">
                 {user.isAdmin && (
                   <Link href="/admin" tabIndex={open ? 0 : -1} className="btn-brand flex-1 py-2.5">
-                    ⚙️ ניהול
+                    <Settings className="h-4 w-4" aria-hidden />
+                    ניהול
                   </Link>
                 )}
                 <form action={logout} className={user.isAdmin ? "" : "flex-1"}>
                   <button
                     tabIndex={open ? 0 : -1}
-                    className="w-full rounded-xl px-4 py-2.5 font-bold text-white/80 ring-1 ring-white/20 transition hover:bg-white/10 active:scale-[0.97]"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-bold text-white/80 ring-1 ring-white/20 transition hover:bg-white/10 active:scale-[0.97]"
                   >
+                    <LogOut className="h-4 w-4" aria-hidden />
                     יציאה
                   </button>
                 </form>
               </div>
             ) : (
               <Link href="/login" tabIndex={open ? 0 : -1} className="btn-brand w-full py-3 text-lg">
+                <LogIn className="h-5 w-5" aria-hidden />
                 כניסה / הרשמה
               </Link>
             )}
@@ -168,11 +173,9 @@ export function MainMenu({ items, user }: { items: MenuItem[]; user: MenuUser })
 function PendingArrow({ active }: { active: boolean }) {
   const { pending } = useLinkStatus();
   return (
-    <span
+    <ChevronLeft
       aria-hidden
-      className={`text-xl transition ${pending ? "animate-pulse text-brand" : active ? "" : "text-white/40 group-hover:text-brand"}`}
-    >
-      ←
-    </span>
+      className={`h-6 w-6 transition ${pending ? "animate-pulse text-brand" : active ? "" : "text-white/40 group-hover:text-brand"}`}
+    />
   );
 }

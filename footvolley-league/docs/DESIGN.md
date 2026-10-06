@@ -46,9 +46,9 @@ The owner's reference design is the home hero: `bg-brand-dark` + `.brand-stripes
 
 ## Navigation
 - **Header** (`Nav.tsx`, sticky, `bg-brand-dark`): sponsor logo + "ליגת הפוצ'יוולי" (links home), and the **menu button**, which shows the current page name.
-- **Main menu** (`MainMenu.tsx`): opens over most of the screen in the banner style. Big bold items (`text-2xl font-extrabold`) with emoji icons, the current page on solid `bg-brand`, a pulsing arrow while the next page loads (`useLinkStatus`), staggered slide-in animation. Footer: ⚙️ ניהול (admins) + יציאה, or כניסה / הרשמה. It closes on ✕, outside click, Esc, or route change, and locks page scroll while open. This is the only way to reach `/admin` from the header.
+- **Main menu** (`MainMenu.tsx`): opens over most of the screen in the banner style. Big bold items (`text-2xl font-extrabold`) with **Lucide** line icons (turquoise on `bg-white/10` tiles), the current page on solid `bg-brand`, a pulsing arrow while the next page loads (`useLinkStatus`), staggered slide-in animation. Footer: ניהול with a gear icon (admins) + יציאה, or כניסה / הרשמה, all with icons. It closes on the X button, outside click, Esc, or route change, and locks page scroll while open. This is the only way to reach `/admin` from the header.
 - **Shortcuts row** (`NavLinks.tsx`, under the header): horizontally scrolling links. The active page is turquoise, a clicked link pulses while loading, and the row auto-scrolls to the active link. The owner asked to keep **both** the menu and this row. The admin sub-nav uses the same component (`variant="light"`).
-- The link list lives once, in `LINKS` in `Nav.tsx` (`href`, `label`, `icon`). "ראשי" appears only in the big menu.
+- The link list lives once, in `NAV_ITEMS` in `src/lib/nav.ts` (`href`, `label`, `icon` = a Lucide component). `MainMenu` imports it directly; `Nav` passes only `href`/`label` to `NavLinks`, because components can't be passed from a server to a client component. "ראשי" appears only in the big menu.
 
 ## Round page (`/rounds/[number]`)
 - **Match cards** (`PredictionsForm` and the locked view in `page.tsx`): `brand-card brand-stripes`. Date + small sponsor logo on top, one row per team (`TeamBadge` in white + `.score-input-dark`), and a turquoise `<VsDivider />` between the teams. After the lock: the winner in bold with a turquoise score, the user's prediction in a gray box, and points in a badge (solid turquoise for an exact score). The save button is `.btn-brand`.
@@ -90,6 +90,6 @@ The owner's reference design is the home hero: `bg-brand-dark` + `.brand-stripes
 - Scores, invite codes, emails and URLs: wrap in `dir="ltr"`.
 - Test every screen at 375px. There must be no page-level horizontal scroll. Wide tables hide secondary columns below `sm` (`hidden sm:table-cell`).
 - Match cards use one row per team (team name, then input). Do not go back to a side-by-side `home : away` layout, because names get cut off on phones.
-- Emoji are fine for icons (menu, banner), but **not** for flags: Windows shows flag emoji as letters, so use `<Flag />`.
+- **Icons vs emoji (owner decision, 2026-10-06):** real icons (`lucide-react`) are used **only in the big menu**. Everywhere else the owner chose to keep the existing emoji (medals 🥇🥈🥉, ✓, ✕, 📷, 👆, 🏅, 🟨🟥, text arrows ←/→). Don't replace them unless the owner asks. Never use flag emoji: Windows shows them as letters, so use `<Flag />`.
 - Popups (menu, sheets, crop dialog) are `fixed inset-0` overlays with `role="dialog"`. They close on Esc and on a backdrop click, and lock body scroll while open.
 - **No `autoFocus` on text inputs inside popups** (owner request): on phones it opens the keyboard immediately and hides the list. Let the user tap the field.

@@ -55,6 +55,7 @@ footvolley-league/
 │  │  ├─ LeaderboardTable, ZoneLegend, ConfirmButton, NoSeason
 │  └─ lib/
 │     ├─ supabase/                   server.ts (per-request client), proxy.ts (session refresh), env.ts
+│     ├─ nav.ts                      NAV_ITEMS: every page (href, label, Lucide icon) for the menu and the shortcuts row
 │     ├─ data.ts                     getSessionUser, requireUser, requireAdmin, getActiveSeason (React cache)
 │     ├─ scoring.ts                  isValidSetScore, predictionPoints, computeStandings, zones, PLAYER_RULES, quadMultiplier
 │     ├─ format.ts                   Dates in Asia/Jerusalem, datetime-local conversions
