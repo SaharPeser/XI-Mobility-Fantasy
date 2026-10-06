@@ -2,6 +2,11 @@
 
 What was built, newest first. **Add an entry with every change** (same commit). Each entry lists what changed for users, any SQL the owner had to run, and the main files.
 
+## 2026-10-06 — Squad picker search box
+- Opening the player picker (tapping **+** on the sand court) no longer focuses the search box, so the phone keyboard doesn't pop up.
+- The search box always has the light-blue focus frame (new class `.input-highlight`), a 🔍 hint, and `type="search"` / `enterKeyHint="search"`.
+- Files: `app/rounds/[number]/SandPitch.tsx`, `globals.css`.
+
 ## 2026-10-02 — Docs and skills refresh
 - All docs updated to the current state. Added this changelog, the "migrations applied" table in `DEPLOYMENT.md`, and the `local-preview` skill.
 - New standing rule (owner request): every change updates the docs and skills, so nothing is lost when a conversation ends.

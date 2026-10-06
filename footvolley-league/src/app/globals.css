@@ -72,6 +72,11 @@ body {
   @apply w-full rounded-xl border border-border bg-card px-3 py-2 outline-none focus:border-accent focus:ring-2 focus:ring-accent/30;
 }
 
+/* שדה שמודגש תמיד כמו בזמן פוקוס (למשל חיפוש שחקנים בשישייה) */
+.input-highlight {
+  @apply border-accent ring-2 ring-accent/30;
+}
+
 .label {
   @apply mb-1 block text-sm font-medium text-muted;
 }

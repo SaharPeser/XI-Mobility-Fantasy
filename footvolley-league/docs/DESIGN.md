@@ -31,6 +31,7 @@ Use these as Tailwind classes (`bg-brand`, `text-accent`, `border-border`, ...).
 | `.btn-danger` | Red text, for deletes (wrap in `ConfirmButton`) |
 | `.input`, `.label`, `.score-input` | Form fields (light) |
 | `.score-input-dark` | Score input on a dark card (white text, turquoise focus) |
+| `.input-highlight` | Add to `.input` to keep the focus look (accent border + light-blue ring) at all times, e.g. the squad picker search. A plain utility like `border-accent` can't override `.input`, because component classes are unlayered CSS |
 | `.brand-card` | Dark rounded card in the banner style. Always combine with `.brand-stripes` (`className="brand-card brand-stripes"`), because `@apply` cannot include a custom class |
 | `.brand-stripes` | Diagonal turquoise and blue stripes inspired by the "X". Use on `bg-brand-dark` panels |
 | `.sand`, `.net` | Sand court texture and net |
@@ -90,3 +91,4 @@ The owner's reference design is the home hero: `bg-brand-dark` + `.brand-stripes
 - Match cards use one row per team (team name, then input). Do not go back to a side-by-side `home : away` layout, because names get cut off on phones.
 - Emoji are fine for icons (menu, banner), but **not** for flags: Windows shows flag emoji as letters, so use `<Flag />`.
 - Popups (menu, sheets, crop dialog) are `fixed inset-0` overlays with `role="dialog"`. They close on Esc and on a backdrop click, and lock body scroll while open.
+- **No `autoFocus` on text inputs inside popups** (owner request): on phones it opens the keyboard immediately and hides the list. Let the user tap the field.

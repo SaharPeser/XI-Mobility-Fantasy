@@ -342,12 +342,14 @@ function PlayerPicker({
   return (
     <Sheet title="בחירת שחקן" onClose={onClose}>
       <div className="space-y-2 border-b border-border p-3">
+        {/* בלי פוקוס אוטומטי, כדי שהמקלדת לא תיפתח בטלפון. המסגרת התכולה מוצגת תמיד */}
         <input
-          className="input"
-          placeholder="חיפוש שחקן או קבוצה"
+          className="input input-highlight"
+          type="search"
+          enterKeyHint="search"
+          placeholder="🔍 חיפוש שחקן או קבוצה"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          autoFocus
         />
         <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
           <FilterChip active={!teamFilter} onClick={() => setTeamFilter(null)}>
