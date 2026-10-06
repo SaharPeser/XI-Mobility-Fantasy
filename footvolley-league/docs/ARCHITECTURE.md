@@ -22,6 +22,7 @@ footvolley-league/
 │  │  ├─ layout.tsx                  Root layout: RTL, Heebo font, Nav, sponsor footer
 │  │  ├─ globals.css                 Color tokens, .card/.btn/.brand-card…, sand court, animations
 │  │  ├─ page.tsx                    Home: hero, next open round, leaders, sponsor prizes, scoring summary
+│  │  ├─ loading.tsx                 Default loading skeleton (route-specific ones live next to their page.tsx)
 │  │  ├─ login/                      Sign in / sign up (actions.ts: login, signup, logout)
 │  │  ├─ auth/confirm/route.ts       Email-confirmation callback (token_hash or PKCE code)
 │  │  ├─ rounds/
@@ -50,6 +51,7 @@ footvolley-league/
 │  │  ├─ Flag.tsx                    SVG flags (IL / BR) + NATIONALITY_LABEL
 │  │  ├─ TeamBadge.tsx               Team logo circle (or first letter) + name
 │  │  ├─ VsDivider.tsx               Turquoise "VS" line between two teams
+│  │  ├─ Skeleton.tsx                Loading skeleton building blocks
 │  │  ├─ LeaderboardTable, ZoneLegend, ConfirmButton, NoSeason
 │  └─ lib/
 │     ├─ supabase/                   server.ts (per-request client), proxy.ts (session refresh), env.ts
@@ -86,6 +88,12 @@ footvolley-league/
    - **Admin form actions:** `admin/actions.ts`, plain `<form action>` posts. They finish with `done(fd, error?)`, which revalidates and redirects back to `return_to` with `?ok=1` or `?error=...`.
    - **Admin client-called actions** (image upload/remove): return `{ ok, error, url }` and call `revalidatePath` themselves.
 5. Images: the browser crops to a 400×400 WebP and posts it to `uploadPlayerPhoto` / `uploadTeamLogo` (FormData, ≤1MB). The server uploads to Storage, stores the public URL (`players.photo_url` / `teams.logo_url`) and removes older files.
+
+## Performance
+- **Region:** Vercel functions run in `fra1`, next to Supabase (Frankfurt), via `vercel.json`. Every DB query from a page is a round trip, so keep them few and parallel (`Promise.all`).
+- **Auth:** `getSessionUser()` uses `supabase.auth.getClaims()`, which verifies the JWT locally with the project's ES256 keys (no network call). It is cached per request with React `cache`, so `Nav` and the page share it. Server actions that write still use `getUser()`.
+- **Client cache:** `experimental.staleTimes.dynamic = 30` in `next.config.ts`. `revalidatePath` in server actions invalidates it.
+- **Skeletons:** `loading.tsx` files give instant navigation feedback (Next shows them immediately and streams the page in). Root `app/loading.tsx` is the fallback, and `/rounds`, `/rounds/[number]`, `/leaderboard`, `/standings` and `/players` have their own skeletons, built from `components/Skeleton.tsx`. **A new page with its own layout should get a matching `loading.tsx`.**
 
 ## The active season
 Almost every page works on the **active season** (`seasons.is_active = true`, at most one, enforced by a partial unique index). `getActiveSeason()` is cached per request. With no active season, pages render `<NoSeason />`.

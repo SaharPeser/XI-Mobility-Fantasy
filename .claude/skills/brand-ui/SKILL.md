@@ -18,7 +18,8 @@ Read `footvolley-league/docs/DESIGN.md` first: tokens, component classes, the ba
 8. **Server Components by default.** Add `"use client"` only for interactivity, and keep client components focused (see `PredictionsForm`, `SandPitch`, `RoundDeck`, `MainMenu`).
 9. **Feedback:** buttons shrink on press (built into the button classes). Links that navigate can show a pending state with `useLinkStatus` (see `NavLinks`, `MainMenu`). Animations respect `prefers-reduced-motion`.
 10. **Navigation:** pages are listed once in `LINKS` in `components/Nav.tsx` (`href`, `label`, `icon`). A new page goes there, and it shows up in both the big menu and the shortcuts row.
-11. **Sponsor visibility.** Any new page related to prizes or rankings should include `<SponsorPrizes season={season} />` or at least the "בחסות" logo line.
+11. **Loading skeleton.** A new page (or a page whose layout changes a lot) gets a `loading.tsx` next to its `page.tsx`, in the shape of the page, built from `components/Skeleton.tsx` (`Bone`, `BrandCardSkeleton`, `TableSkeleton`, `MatchCardSkeleton`). Keep it a Server Component without data fetching. Data queries in pages should run in parallel (`Promise.all`), because each one is a network round trip.
+12. **Sponsor visibility.** Any new page related to prizes or rankings should include `<SponsorPrizes season={season} />` or at least the "בחסות" logo line.
 
 ## Checking the result
 Follow the `local-preview` skill: check it yourself at 375px (mock data on a temporary `dev-preview` route if needed, then delete it), then open it for the owner on `localhost:3002` and wait for "מאשר". Then use the `ship` skill, which includes updating `DESIGN.md` and the changelog.

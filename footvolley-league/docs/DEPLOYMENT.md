@@ -4,7 +4,7 @@
 | Service | Project | Notes |
 |---|---|---|
 | GitHub | `SaharPeser/XI-Mobility-Fantasy` | App code is in the `footvolley-league/` folder of the repo |
-| Vercel | team `footvolley`, project `footvolley` | Root Directory **`footvolley-league`**, Framework Next.js, auto-deploy on push to `main` |
+| Vercel | team `footvolley`, project `footvolley` | Root Directory **`footvolley-league`**, Framework Next.js, auto-deploy on push to `main`. Functions run in **`fra1` (Frankfurt)**, set in `footvolley-league/vercel.json`, so they sit next to the Supabase DB. Don't remove it: in `iad1` every query crosses the Atlantic and pages took 1–1.4 s. Check with the `X-Vercel-Id` header (`fra1::fra1::…`) |
 | Domain | https://ximobilityfantasy.vercel.app | The old `footvolley.vercel.app` redirects here |
 | Supabase | ref `akgcwifctvrnnhjopqkg` | Frankfurt. SQL Editor: https://supabase.com/dashboard/project/akgcwifctvrnnhjopqkg/sql/new |
 | Supabase Storage | buckets `player-photos`, `team-logos` | Public read, admin-only write (created by migrations) |

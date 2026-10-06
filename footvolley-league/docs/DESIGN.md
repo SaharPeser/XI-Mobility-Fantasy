@@ -36,6 +36,7 @@ Use these as Tailwind classes (`bg-brand`, `text-accent`, `border-border`, ...).
 | `.brand-stripes` | Diagonal turquoise and blue stripes inspired by the "X". Use on `bg-brand-dark` panels |
 | `.sand`, `.net` | Sand court texture and net |
 | `.swipe-hand`, `.deck-hint` | Animations for the rounds deck (off under `prefers-reduced-motion`) |
+| `.skeleton`, `.skeleton-dark` | Loading placeholder blocks with a moving shimmer (dark = on brand cards). Use through `<Bone>` and the helpers in `components/Skeleton.tsx` (`SkeletonPage`, `BrandCardSkeleton`, `TableSkeleton`, `MatchCardSkeleton`, `TitleSkeleton`). Skeletons copy the real page's shape |
 | `h1.page-title` | Page heading |
 
 All buttons (`.btn`, `.btn-brand`, `.btn-secondary`) shrink slightly when pressed (`active:scale-[0.97]`).

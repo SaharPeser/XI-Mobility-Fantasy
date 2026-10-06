@@ -5,16 +5,21 @@ import type { Season } from "./types";
 
 export const getSessionUser = cache(async () => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  // getClaims מאמת את הטוקן מקומית (מפתחות ES256 של הפרויקט), בלי קריאה נוספת לשרת ההתחברות
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  if (!claims?.sub) return null;
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, display_name, is_admin")
-    .eq("id", user.id)
+    .eq("id", claims.sub)
     .single();
-  return { id: user.id, email: user.email ?? "", displayName: profile?.display_name ?? "", isAdmin: !!profile?.is_admin };
+  return {
+    id: claims.sub,
+    email: typeof claims.email === "string" ? claims.email : "",
+    displayName: profile?.display_name ?? "",
+    isAdmin: !!profile?.is_admin,
+  };
 });
 
 export async function requireUser(next = "/") {

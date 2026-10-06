@@ -173,9 +173,44 @@ h1.page-title {
   }
 }
 
+/* שלד טעינה: בלוק אפור עם הבהוב שעובר עליו. skeleton-dark לכרטיסים כהים */
+.skeleton,
+.skeleton-dark {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background-color: var(--border);
+}
+
+.skeleton-dark {
+  background-color: rgb(255 255 255 / 0.1);
+}
+
+.skeleton::after,
+.skeleton-dark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.45), transparent);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-dark::after {
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.12), transparent);
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .swipe-hand,
-  .deck-hint {
+  .deck-hint,
+  .skeleton::after,
+  .skeleton-dark::after {
     animation: none;
   }
 }
