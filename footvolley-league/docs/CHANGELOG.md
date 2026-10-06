@@ -3,7 +3,7 @@
 What was built, newest first. **Add an entry with every change** (same commit). Each entry lists what changed for users, any SQL the owner had to run, and the main files.
 
 ## 2026-10-06 — Faster navigation + loading skeletons
-- Vercel functions moved from `iad1` (Washington) to `fra1` (Frankfurt), next to the Supabase DB (`vercel.json`). Before: ~1.0–1.4 s per page.
+- Vercel functions moved from `iad1` (Washington) to `fra1` (Frankfurt), next to the Supabase DB (`vercel.json`). Measured from Israel: before ~1.0–1.4 s per page, after ~0.45–0.55 s (warm).
 - `getSessionUser` uses `auth.getClaims()` (local ES256 JWT verification) instead of `auth.getUser()` (a network call per page).
 - `experimental.staleTimes.dynamic = 30`: pages visited in the last 30 s reopen instantly. Server actions' `revalidatePath` clears it.
 - Skeletons (`loading.tsx`) shaped like each page: root (generic), `/rounds`, `/rounds/[number]`, `/leaderboard`, `/standings`, `/players`. Shimmer classes `.skeleton` / `.skeleton-dark`, building blocks in `components/Skeleton.tsx`.
