@@ -21,6 +21,7 @@ Read `footvolley-league/docs/DESIGN.md` first: tokens, component classes, the ba
 11. **Navigation:** pages are listed once in `NAV_ITEMS` in `src/lib/nav.ts` (`href`, `label`, `icon` = a `lucide-react` component). A new page goes there, and it shows up in both the big menu and the shortcuts row.
 12. **Loading skeleton.** A new page (or a page whose layout changes a lot) gets a `loading.tsx` next to its `page.tsx`, in the shape of the page, built from `components/Skeleton.tsx` (`Bone`, `BrandCardSkeleton`, `TableSkeleton`, `MatchCardSkeleton`). Keep it a Server Component without data fetching. Data queries in pages should run in parallel (`Promise.all`), because each one is a network round trip.
 13. **Sponsor visibility.** Any new page related to prizes or rankings should include `<SponsorPrizes season={season} />` or at least the "בחסות" logo line.
+14. **Sign-in:** every page requires sign-in automatically (`src/lib/supabase/proxy.ts`). Only `/login`, `/auth` and `/terms` are public. A new page that must be public goes into `PUBLIC_PATHS` and has to work for a visitor who is not signed in (no `requireUser`; the header shows only the login button).
 
 ## Checking the result
 Follow the `local-preview` skill: check it yourself at 375px (mock data on a temporary `dev-preview` route if needed, then delete it), then open it for the owner on `localhost:3002` and wait for "מאשר". Then use the `ship` skill, which includes updating `DESIGN.md` and the changelog.

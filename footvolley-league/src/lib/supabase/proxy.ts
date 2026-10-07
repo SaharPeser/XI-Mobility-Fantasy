@@ -23,14 +23,28 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const isLoggedIn = Boolean(data?.claims);
 
+  // כל האתר רק למשתמשים מחוברים. פתוחים בלי התחברות: כניסה/הרשמה, אימות מייל, והתקנון (כדי לקרוא אותו לפני ההרשמה)
   const path = request.nextUrl.pathname;
-  const needsAuth = ["/predict-table", "/leagues", "/admin", "/join"].some((p) => path.startsWith(p));
-  if (!isLoggedIn && needsAuth) {
+  const isPublic = PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
+  if (!isLoggedIn && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", path);
+    url.search = "";
+    // חוזרים בדיוק לאותו עמוד אחרי ההתחברות (למשל קישור הזמנה לליגה)
+    if (path !== "/") url.searchParams.set("next", path + request.nextUrl.search);
+    return NextResponse.redirect(url);
+  }
+
+  // משתמש מחובר שנכנס לעמוד ההתחברות עובר ישר לאתר
+  if (isLoggedIn && path === "/login") {
+    const url = request.nextUrl.clone();
+    const next = request.nextUrl.searchParams.get("next");
+    url.pathname = next && next.startsWith("/") && !next.startsWith("//") ? next.split("?")[0] : "/";
+    url.search = next?.includes("?") ? `?${next.split("?")[1]}` : "";
     return NextResponse.redirect(url);
   }
 
   return response;
 }
+
+const PUBLIC_PATHS = ["/login", "/auth", "/terms"];

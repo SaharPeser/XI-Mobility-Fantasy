@@ -222,5 +222,17 @@ await as(U1, `insert into storage.objects (bucket_id, name) values ('team-logos'
 ok(!!(await fails(U2, `insert into storage.objects (bucket_id, name) values ('team-logos', 't1/b.webp')`)), "non-admin cannot upload logos");
 ok((await as(null, `select * from storage.objects where bucket_id = 'team-logos'`)).rows.length === 1, "anyone can read logos");
 
+// ---------- תקנון ומדיניות (20261007000000_site_content) ----------
+await as(U1, `insert into site_content (key, title, body) values ('terms', 'תקנון', 'גוף')`);
+ok((await as(null, `select * from site_content where key = 'terms'`)).rows.length === 1, "anyone can read the terms");
+ok(!!(await fails(U2, `update site_content set body = 'x' where key = 'terms'`)), "non-admin cannot edit the terms");
+ok(!!(await fails(U1, `insert into site_content (key, title, body) values ('other', 'x', 'y')`)), "only known content keys");
+const U4 = "00000000-0000-0000-0000-000000000004";
+await db.exec(`insert into auth.users values ('${U4}', 'd@x.com', '{"display_name":"דנה","terms_accepted_at":"2026-10-07T10:00:00Z"}')`);
+ok(!!(await db.query(`select terms_accepted_at from profiles where id = $1`, [U4])).rows[0].terms_accepted_at, "sign-up stores terms acceptance");
+const U5 = "00000000-0000-0000-0000-000000000005";
+await db.exec(`insert into auth.users values ('${U5}', 'e@x.com', '{"display_name":"ערן","terms_accepted_at":"not-a-date"}')`);
+ok((await db.query(`select display_name from profiles where id = $1`, [U5])).rows[0].display_name === "ערן", "bad terms date does not block sign-up");
+
 console.log(failures ? `\n${failures} FAILED` : "\nALL PASSED");
 process.exit(failures ? 1 : 0);

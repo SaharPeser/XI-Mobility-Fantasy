@@ -242,6 +242,31 @@ export async function deletePlayer(fd: FormData) {
   done(fd, error);
 }
 
+// ---------- תקנון ומדיניות פרטיות ----------
+
+const CONTENT_KEYS = ["terms", "privacy"] as const;
+const MISSING_CONTENT_SQL = "יש להריץ ב-Supabase את קובץ ה-SQL של התקנון";
+
+export async function saveSiteContent(fd: FormData) {
+  const supabase = await admin();
+  const key = str(fd, "key") as (typeof CONTENT_KEYS)[number];
+  if (!CONTENT_KEYS.includes(key)) return done(fd, "מסמך לא מוכר");
+  const title = str(fd, "title");
+  const body = String(fd.get("body") ?? "").trim();
+  if (!title || !body) return done(fd, "יש למלא כותרת ותוכן");
+  const { error } = await supabase
+    .from("site_content")
+    .upsert({ key, title, body, updated_at: new Date().toISOString() });
+  done(fd, error && /site_content/.test(error.message) ? MISSING_CONTENT_SQL : error);
+}
+
+/** מחזיר את המסמך לנוסח הראשוני (מוחק את הנוסח ששמר המנהל) */
+export async function resetSiteContent(fd: FormData) {
+  const supabase = await admin();
+  const { error } = await supabase.from("site_content").delete().eq("key", str(fd, "key"));
+  done(fd, error && /site_content/.test(error.message) ? MISSING_CONTENT_SQL : error);
+}
+
 // ---------- מחזורים ----------
 
 export async function createRound(fd: FormData) {

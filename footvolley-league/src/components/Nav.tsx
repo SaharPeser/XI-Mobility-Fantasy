@@ -16,13 +16,22 @@ export async function Nav() {
             ליגת הפוצ&apos;יוולי
           </span>
         </Link>
-        <MainMenu user={user ? { displayName: user.displayName, isAdmin: user.isAdmin } : null} />
+        {user ? (
+          <MainMenu user={{ displayName: user.displayName, isAdmin: user.isAdmin }} />
+        ) : (
+          // מי שלא מחובר רואה רק כפתור כניסה: כל שאר האתר דורש התחברות
+          <Link href="/login" className="btn-brand py-1.5 whitespace-nowrap">
+            כניסה
+          </Link>
+        )}
       </div>
       {/* שורת הקיצורים הנגללת (בלי "ראשי", שאליו מגיעים מהלוגו). רק טקסט, כי האייקונים לא עוברים מרכיב שרת לרכיב לקוח */}
-      <NavLinks
-        items={NAV_ITEMS.filter((l) => l.href !== "/").map(({ href, label }) => ({ href, label }))}
-        className="mx-auto max-w-3xl px-2 pb-2"
-      />
+      {user && (
+        <NavLinks
+          items={NAV_ITEMS.filter((l) => l.href !== "/").map(({ href, label }) => ({ href, label }))}
+          className="mx-auto max-w-3xl px-2 pb-2"
+        />
+      )}
     </header>
   );
 }

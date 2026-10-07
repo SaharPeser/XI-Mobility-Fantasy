@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/admin/teams", label: "קבוצות ושחקנים" },
   { href: "/admin/rounds", label: "מחזורים ומשחקים" },
   { href: "/admin/standings", label: "דירוג סופי" },
+  { href: "/admin/content", label: "תקנון ופרטיות" },
 ];
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {

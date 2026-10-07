@@ -30,6 +30,7 @@ export async function signup(_: AuthState, formData: FormData): Promise<AuthStat
   if (displayName.length < 2 || displayName.length > 30) return { error: "שם תצוגה צריך להיות 2–30 תווים" };
   const password = String(formData.get("password"));
   if (password.length < 6) return { error: "הסיסמה צריכה להכיל לפחות 6 תווים" };
+  if (formData.get("accept_terms") !== "on") return { error: "יש לאשר את התקנון ומדיניות הפרטיות" };
 
   const origin = process.env.NEXT_PUBLIC_SITE_URL ?? (await headers()).get("origin") ?? "";
   const supabase = await createClient();
@@ -37,7 +38,8 @@ export async function signup(_: AuthState, formData: FormData): Promise<AuthStat
     email: String(formData.get("email")).trim(),
     password,
     options: {
-      data: { display_name: displayName },
+      // מועד ההסכמה לתקנון נשמר בפרופיל (טריגר handle_new_user)
+      data: { display_name: displayName, terms_accepted_at: new Date().toISOString() },
       emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(safeNext(formData.get("next")))}`,
     },
   });

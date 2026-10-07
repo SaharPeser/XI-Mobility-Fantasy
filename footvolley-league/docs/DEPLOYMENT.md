@@ -20,6 +20,7 @@ Keep this list current. A migration is "applied" only after the owner ran it in 
 | `20260928000000_squad_nationality.sql` | ✅ 2026-09-28 |
 | `20260930000000_player_photos.sql` | ✅ 2026-09-30 |
 | `20261001000000_team_logos.sql` | ✅ 2026-10-01 |
+| `20261007000000_site_content.sql` | ⏳ handed to the owner 2026-10-07, not yet run. Until then: terms show the built-in draft, admin edits fail with a message, consent dates aren't stored |
 
 ## Environment variables
 | Name | Value | Where |

@@ -2,6 +2,13 @@
 
 What was built, newest first. **Add an entry with every change** (same commit). Each entry lists what changed for users, any SQL the owner had to run, and the main files.
 
+## 2026-10-07 — Sign-in required + terms and privacy
+- The whole site requires signing in. `src/lib/supabase/proxy.ts` redirects every path except `PUBLIC_PATHS` (`/login`, `/auth`, `/terms`) to `/login?next=<path>`, and a signed-in user opening `/login` is sent on. The header for visitors shows only the logo + "כניסה".
+- New public page `/terms` (terms of use + privacy policy), linked from the footer. The initial Hebrew draft lives in `src/lib/legal.ts` (`DEFAULT_CONTENT`). It has a `[כתובת מייל ליצירת קשר]` placeholder for the owner to fill, and a legal review is recommended before prizes.
+- Admin screen `/admin/content`: edit title + body of each document, preview, reset to the initial version. Simple formatting ("## " heading, "- " list) rendered by `components/RichText.tsx` (text only, no HTML).
+- Sign-up requires an "I agree" checkbox, and `profiles.terms_accepted_at` records when.
+- SQL: `20261007000000_site_content.sql` (`site_content` table, `profiles.terms_accepted_at`, updated `handle_new_user`).
+
 ## 2026-10-06 — Icons in the big menu
 - The big menu uses professional `lucide-react` line icons (house, volleyball, list, chart, trophy, player, group, book) instead of emoji, plus icons for close, row arrow, admin, log out and log in.
 - The owner tried icons across the whole site and chose to keep them **only in the big menu**; all other emoji stay as they were.

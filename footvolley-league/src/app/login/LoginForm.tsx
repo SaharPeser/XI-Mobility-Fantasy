@@ -49,6 +49,21 @@ export function LoginForm({ next }: { next: string }) {
             autoComplete={mode === "login" ? "current-password" : "new-password"}
           />
         </div>
+        {mode === "signup" && (
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" name="accept_terms" required className="mt-1 h-4 w-4 shrink-0" />
+            <span>
+              קראתי ואני מסכים/ה ל
+              <a href="/terms#terms" target="_blank" className="font-medium text-accent underline">
+                תקנון השימוש
+              </a>{" "}
+              ול
+              <a href="/terms#privacy" target="_blank" className="font-medium text-accent underline">
+                מדיניות הפרטיות
+              </a>
+            </span>
+          </label>
+        )}
         {state.error && <p className="text-sm text-rose-600">{state.error}</p>}
         {state.message && <p className="text-sm text-emerald-600">{state.message}</p>}
         <button className="btn w-full" disabled={pending}>

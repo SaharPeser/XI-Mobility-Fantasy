@@ -38,6 +38,7 @@ footvolley-league/
 │  │  ├─ leaderboard/                Overall ranking + sponsor prizes
 │  │  ├─ players/                    Public player points (season / per round), photos, round MVP 🏅
 │  │  ├─ rules/                      Scoring rules page, values read live from the season row
+│  │  ├─ terms/                      Public terms of use + privacy policy (admin-editable)
 │  │  ├─ leagues/                    Private friends leagues, invite code, league leaderboard
 │  │  ├─ join/[code]/                Invite link landing page
 │  │  ├─ admin/                      Admin area (see below)
@@ -52,9 +53,11 @@ footvolley-league/
 │  │  ├─ TeamBadge.tsx               Team logo circle (or first letter) + name
 │  │  ├─ VsDivider.tsx               Turquoise "VS" line between two teams
 │  │  ├─ Skeleton.tsx                Loading skeleton building blocks
+│  │  ├─ RichText.tsx                Renders admin text ("## " headings, "- " lists, paragraphs) as plain text
 │  │  ├─ LeaderboardTable, ZoneLegend, ConfirmButton, NoSeason
 │  └─ lib/
 │     ├─ supabase/                   server.ts (per-request client), proxy.ts (session refresh), env.ts
+│     ├─ legal.ts                    Terms/privacy: built-in draft (DEFAULT_CONTENT) + getSiteContent(key)
 │     ├─ nav.ts                      NAV_ITEMS: every page (href, label, Lucide icon) for the menu and the shortcuts row
 │     ├─ data.ts                     getSessionUser, requireUser, requireAdmin, getActiveSeason (React cache)
 │     ├─ scoring.ts                  isValidSetScore, predictionPoints, computeStandings, zones, PLAYER_RULES, quadMultiplier
@@ -76,12 +79,13 @@ footvolley-league/
 | `rounds/page.tsx` | Rounds list: create 11 rounds, deadlines, stage |
 | `rounds/[id]/page.tsx` + `MatchStatsForm.tsx` | Matches and results, per-match player stats, round MVP, manual adjustments |
 | `standings/page.tsx` | Final regular-season positions |
+| `content/page.tsx` | Terms of use and privacy policy editor |
 | `ImageEditor.tsx` | Client: shared upload + circular crop dialog (`PlayerPhotoEditor`, `TeamLogoEditor`) |
 | `actions.ts` | All admin server actions |
 | `AdminNotice.tsx` | Shows `?ok` / `?error` after a form post |
 
 ## Request flow
-1. `src/proxy.ts` runs on every non-static request. It refreshes the Supabase session cookie and redirects anonymous users away from `/predict-table`, `/leagues`, `/admin` and `/join`.
+1. `src/proxy.ts` runs on every non-static request. It refreshes the Supabase session cookie. **The whole site requires sign-in:** anonymous users are redirected to `/login?next=<path>` except on `PUBLIC_PATHS` (`/login`, `/auth`, `/terms`) in `src/lib/supabase/proxy.ts`. A new public page must be added there.
 2. Server Components call `createClient()` from `lib/supabase/server.ts`, which acts as the signed-in user, so RLS applies.
 3. Page-level guards: `requireUser(next)` and `requireAdmin()` from `lib/data.ts`. The admin layout calls `requireAdmin()` once for the whole `/admin` tree.
 4. Mutations:

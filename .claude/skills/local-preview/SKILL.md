@@ -36,6 +36,7 @@ They are signed in there as admin. In the Hebrew message, tell them:
 - What changed, in plain words, grouped by screen.
 - Which URL(s) to open: desktop `http://localhost:3002/...`, phone on the same Wi-Fi `http://10.20.0.16:3002/...` (re-check the Wi-Fi IP with `Get-NetIPAddress`; ignore VMware/169.254 adapters), or Chrome device mode (F12 → Ctrl+Shift+M).
 - That nothing was committed, and that they can ask for changes or say "מאשר".
+- To see the site as a visitor, open a private window (Ctrl+Shift+N): every page except sign-in and `/terms` redirects to `/login`. The Claude browser pane is also signed out, so it only sees public pages; check signed-in screens with a `dev-preview` mock.
 - Offer one or two concrete tweak options when a design choice was yours (direction, colors, texts).
 
 ## 5. After "מאשר"

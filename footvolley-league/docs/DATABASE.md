@@ -10,6 +10,7 @@ All schema lives in `supabase/migrations/`, applied in file-name order. **Never 
 | `20260928000000_squad_nationality.sql` | `players.nationality` (`IL`/`BR`), `seasons.squad_size` and `max_brazilians`, RPC `save_squad` |
 | `20260930000000_player_photos.sql` | `players.photo_url`, public Storage bucket `player-photos` (1MB, images only) with admin-only write policies on `storage.objects` |
 | `20261001000000_team_logos.sql` | Public Storage bucket `team-logos` with admin-only write. The URL goes into the existing `teams.logo_url` |
+| `20261007000000_site_content.sql` | `site_content` (admin-editable terms/privacy, public read), `profiles.terms_accepted_at`, `handle_new_user` stores the sign-up consent time from user metadata |
 
 ## Storage
 | Bucket | Read | Write | Content |
@@ -20,7 +21,8 @@ All schema lives in `supabase/migrations/`, applied in file-name order. **Never 
 ## Tables
 | Table | Purpose | Key columns |
 |---|---|---|
-| `profiles` | One row per auth user | `display_name`, `is_admin` |
+| `profiles` | One row per auth user | `display_name`, `is_admin`, `terms_accepted_at` (sign-up consent; null for users from before 2026-10-07) |
+| `site_content` | Admin-edited legal texts | `key` (`terms` / `privacy`), `title`, `body`, `updated_at`. Read by everyone, written by admin. No row = the app shows its built-in draft |
 | `seasons` | A season and its scoring settings | `is_active` (max one), `table_deadline`, `pts_winner`, `pts_exact`, `pts_table_position`, `quad_multiplier`, `captain_multiplier`, `prize_1..3`, `ppts_*` (personal scoring, penalties stored positive), `crushing_margin`, `quad_multiply_negative`, `squad_size`, `max_brazilians` |
 | `teams` | Teams in a season | `name` (unique per season), `logo_url`, `final_position` (set by admin at season end) |
 | `players` | Players in a team | `is_active` (inactive players cannot be picked), `nationality` (`IL` / `BR`, default `IL`), `photo_url` (public Storage URL or null) |
@@ -61,6 +63,7 @@ Cascades: deleting a season, team, round or match deletes everything under it, *
 | Table | Read | Write |
 |---|---|---|
 | `profiles` | everyone | own `display_name` only (column grant) |
+| `site_content` | everyone (including anonymous, for `/terms`) | admin only |
 | `seasons`, `teams`, `players`, `rounds`, `matches`, `player_round_points`, `match_player_stats` | everyone (including anonymous) | admin only |
 | `match_predictions` | own; others' after the round deadline | own, only while the round is open |
 | `table_predictions` | own; others' after `table_deadline` | only through `save_table_prediction` |

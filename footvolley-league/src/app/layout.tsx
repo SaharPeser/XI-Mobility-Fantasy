@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Heebo } from "next/font/google";
+import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { SPONSOR_URL, SponsorLogo } from "@/components/Sponsor";
 import "./globals.css";
@@ -23,11 +24,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col font-sans">
         <Nav />
         <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">{children}</main>
-        <footer className="bg-brand-dark py-6 text-center text-xs text-white/60">
+        <footer className="flex flex-col items-center gap-3 bg-brand-dark py-6 text-center text-xs text-white/60">
           <a href={SPONSOR_URL} target="_blank" rel="noopener" className="inline-flex flex-col items-center gap-2">
             <span>משחק הניחושים של ליגת הפוצ&apos;יוולי · בחסות</span>
             <SponsorLogo className="h-5" />
           </a>
+          <Link href="/terms" className="underline underline-offset-2 hover:text-white">
+            תקנון ומדיניות פרטיות
+          </Link>
         </footer>
       </body>
     </html>
