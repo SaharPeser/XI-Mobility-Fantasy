@@ -51,7 +51,7 @@ The owner's reference design is the home hero: `bg-brand-dark` + `.brand-stripes
 - The link list lives once, in `NAV_ITEMS` in `src/lib/nav.ts` (`href`, `label`, `icon` = a Lucide component). `MainMenu` imports it directly; `Nav` passes only `href`/`label` to `NavLinks`, because components can't be passed from a server to a client component. "ראשי" appears only in the big menu.
 
 ## Round page (`/rounds/[number]`)
-- **Match cards** (`PredictionsForm` and the locked view in `page.tsx`): `brand-card brand-stripes`. Date + small sponsor logo on top, one row per team (`TeamBadge` in white + `.score-input-dark`), and a turquoise `<VsDivider />` between the teams. After the lock: the winner in bold with a turquoise score, the user's prediction in a gray box, and points in a badge (solid turquoise for an exact score). The save button is `.btn-brand`.
+- **Match cards** (`PredictionsForm` and the locked view in `page.tsx`): `brand-card brand-stripes`. Date + small sponsor logo on top, one row per team (`TeamBadge` in white with the team's active players under it via `<TeamPlayers />` in 11px `text-white/55`, aligned past the logo; + `.score-input-dark`), and a turquoise `<VsDivider />` between the teams. After the lock: the winner in bold with a turquoise score, the user's prediction in a gray box, and points in a badge (solid turquoise for an exact score). The save button is `.btn-brand`.
 - **Squad section:** one dark `brand-card brand-stripes` panel with the title "שישיית **מחזור N**", a rules line, and "בחסות". The `SandPitch` sits inside it, so its texts and status pills use dark-background colors. Its sheets (picker, player actions) stay light, with an explicit `text-foreground`.
 
 ## Sand court (squad picker)

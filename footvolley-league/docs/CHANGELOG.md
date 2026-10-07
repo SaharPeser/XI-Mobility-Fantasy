@@ -2,6 +2,11 @@
 
 What was built, newest first. **Add an entry with every change** (same commit). Each entry lists what changed for users, any SQL the owner had to run, and the main files.
 
+## 2026-10-07 — Player names on match cards
+- On a round page (`/rounds/[number]`), every match card shows the team's active players in small gray text under the team name (e.g. "יוסי כהן · רפאל סילבה"), both in the open predictions form and in the locked view. Long lists wrap to a second line.
+- No SQL. The page already loaded the season's players; it now builds `teamPlayers` (team id → active player names) and passes it to `PredictionsForm`.
+- Files: new `components/TeamPlayers.tsx`, `app/rounds/[number]/page.tsx`, `app/rounds/[number]/PredictionsForm.tsx`.
+
 ## 2026-10-07 — Sign-in required + terms and privacy
 - The whole site requires signing in. `src/lib/supabase/proxy.ts` redirects every path except `PUBLIC_PATHS` (`/login`, `/auth`, `/terms`) to `/login?next=<path>`, and a signed-in user opening `/login` is sent on. The header for visitors shows only the logo + "כניסה".
 - New public page `/terms` (terms of use + privacy policy), linked from the footer. The initial Hebrew draft lives in `src/lib/legal.ts` (`DEFAULT_CONTENT`). It has a `[כתובת מייל ליצירת קשר]` placeholder for the owner to fill, and a legal review is recommended before prizes.

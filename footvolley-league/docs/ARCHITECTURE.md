@@ -51,6 +51,7 @@ footvolley-league/
 │  │  ├─ PlayerAvatar.tsx            Player photo in a circle, or initials
 │  │  ├─ Flag.tsx                    SVG flags (IL / BR) + NATIONALITY_LABEL
 │  │  ├─ TeamBadge.tsx               Team logo circle (or first letter) + name
+│  │  ├─ TeamPlayers.tsx             Small gray line of a team's active player names (under TeamBadge on match cards)
 │  │  ├─ VsDivider.tsx               Turquoise "VS" line between two teams
 │  │  ├─ Skeleton.tsx                Loading skeleton building blocks
 │  │  ├─ RichText.tsx                Renders admin text ("## " headings, "- " lists, paragraphs) as plain text

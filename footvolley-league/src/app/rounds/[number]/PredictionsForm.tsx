@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { SponsorLogo } from "@/components/Sponsor";
 import { TeamBadge } from "@/components/TeamBadge";
+import { TeamPlayers } from "@/components/TeamPlayers";
 import { VsDivider } from "@/components/VsDivider";
 import { formatDateTime } from "@/lib/format";
 import { isValidSetScore, SCORE_RULE_TEXT } from "@/lib/scoring";
@@ -14,10 +15,12 @@ type Row = { home: string; away: string };
 export function PredictionsForm({
   matches,
   teams,
+  teamPlayers,
   initial,
 }: {
   matches: Match[];
   teams: Record<string, Team>;
+  teamPlayers: Record<string, string[]>;
   initial: Record<string, { home_score: number; away_score: number }>;
 }) {
   const [rows, setRows] = useState<Record<string, Row>>(() =>
@@ -106,8 +109,9 @@ export function PredictionsForm({
                       >
                         <TeamBadge
                           team={team}
-                          className="font-bold text-white"
+                          className="max-w-full font-bold text-white"
                         />
+                        <TeamPlayers names={teamPlayers[team?.id ?? ""]} />
                       </button>
                       <input
                         aria-label={`נקודות ${team?.name ?? ""}`}

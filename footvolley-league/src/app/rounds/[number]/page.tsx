@@ -5,6 +5,7 @@ import { SponsorLogo } from "@/components/Sponsor";
 import { VsDivider } from "@/components/VsDivider";
 import { NoSeason } from "@/components/NoSeason";
 import { TeamBadge } from "@/components/TeamBadge";
+import { TeamPlayers } from "@/components/TeamPlayers";
 import { getActiveSeason, getSessionUser } from "@/lib/data";
 import { formatDateTime, isPast } from "@/lib/format";
 import { predictionPoints, quadMultiplier } from "@/lib/scoring";
@@ -50,6 +51,9 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
     nationality: p.nationality ?? "IL",
     photo_url: p.photo_url ?? null,
   }));
+  // שמות השחקנים הפעילים בכל קבוצה, לכרטיסי המשחקים
+  const teamPlayers: Record<string, string[]> = {};
+  for (const p of allPlayers) if (p.is_active) (teamPlayers[p.team_id] ??= []).push(p.name);
   const playerPoints = new Map((pointsData ?? []).map((p) => [p.player_id, Number(p.points)]));
 
   let myPreds: Record<string, { home_score: number; away_score: number }> = {};
@@ -122,7 +126,7 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
         {!matches.length ? (
           <div className="card text-muted">עוד לא הוזנו משחקים למחזור.</div>
         ) : user && !locked ? (
-          <PredictionsForm matches={matches} teams={teams} initial={myPreds} />
+          <PredictionsForm matches={matches} teams={teams} teamPlayers={teamPlayers} initial={myPreds} />
         ) : (
           <div className="space-y-2">
             {user && locked && (
@@ -147,14 +151,18 @@ export default async function RoundPage({ params }: PageProps<"/rounds/[number]"
                       const score = m[`${side}_score`];
                       const other = m[side === "home" ? "away_score" : "home_score"];
                       const won = score != null && other != null && score > other;
+                      const teamId = side === "home" ? m.home_team_id : m.away_team_id;
                       return (
                         <div key={side}>
                           {side === "away" && <VsDivider />}
                           <div className="flex items-center gap-3">
-                            <TeamBadge
-                              team={teams[side === "home" ? m.home_team_id : m.away_team_id]}
-                              className={`min-w-0 flex-1 ${won ? "font-extrabold text-white" : "font-medium text-white/75"}`}
-                            />
+                            <div className="min-w-0 flex-1">
+                              <TeamBadge
+                                team={teams[teamId]}
+                                className={`max-w-full ${won ? "font-extrabold text-white" : "font-medium text-white/75"}`}
+                              />
+                              <TeamPlayers names={teamPlayers[teamId]} />
+                            </div>
                             <span
                               className={`w-10 text-center text-xl font-extrabold tabular-nums ${won ? "text-brand" : "text-white"}`}
                             >
